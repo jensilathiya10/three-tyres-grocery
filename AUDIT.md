@@ -372,8 +372,8 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [x] O-01 Bundles reduce component stock — done: packs reserve and restock their parts; pack stock shown as its scarcest part
 - [x] O-02 Auto-cancel unconfirmed orders — done: WhatsApp orders after 24 h, any "New" order after its delivery day; runs in admin, at checkout and via /api/cron/cleanup (needs a scheduler once hosted)
 - [ ] O-03 Create orders from the admin (WhatsApp/phone)
-- [ ] N-01 New-order alert to shop owner
-- [ ] N-02 Order confirmation email to customer
+- [x] N-01 New-order alert to shop owner — done: email to SHOP_NOTIFY_EMAIL and/or Telegram (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID). **You:** set these for your real inbox/phone
+- [x] N-02 Order confirmation email to customer — done: branded HTML + text email with items, totals, delivery, payment, order link and legal links; works with any SMTP provider (Mailpit for local testing). **You:** set SMTP_URL and MAIL_FROM for a real provider. Note: consider attaching AGB/withdrawal text (durable medium)
 - [ ] P-03 Card terminal for pay-on-delivery
 - [ ] D-01 Exact Berlin postcode list — tool done: admin can exclude postcodes inside the range; customers get a clear message. **You:** enter the non-Berlin postcodes (please verify, e.g. 12529 Schönefeld)
 - [x] D-02 Order cut-off time — done: 20:00 Berlin by default, editable per area in admin; shown on product and delivery pages

@@ -11,5 +11,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  # Local mail catcher for development: the app sends to smtp://localhost:1025,
+  # and you read the emails at http://localhost:8025. Nothing leaves your computer.
+  mail:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   pgdata:

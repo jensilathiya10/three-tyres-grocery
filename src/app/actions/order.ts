@@ -10,6 +10,9 @@ import { deliveryDate, money } from "@/lib/format";
 import { verifyBotCheck } from "@/lib/bot-check";
 import { clientIp, hit, waitText } from "@/lib/rate-limit";
 import { releaseStaleOrders } from "@/lib/orders";
+import { notifyNewOrder } from "@/lib/notify";
+import { headers } from "next/headers";
+import { after } from "next/server";
 
 export type CheckoutState = {
   error?: string;
@@ -163,6 +166,11 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
   }
 
   revalidatePath("/", "layout");
+  // Emails and alerts go out after the customer has been sent to their order page
+  const h = await headers();
+  const base = process.env.APP_URL?.replace(/\/$/, "") || `${h.get("x-forwarded-proto") ?? "http"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
+  const placedId = orderId;
+  after(() => notifyNewOrder(placedId, base));
   redirect(`/order/${orderId}?new=1`);
 }
 
