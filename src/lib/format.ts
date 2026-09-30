@@ -5,7 +5,7 @@ export const orderNo = (n: number) => `IGB-${1000 + n}`;
 export const savePct = (priceCents: number, wasCents: number) => Math.round((1 - priceCents / wasCents) * 100);
 
 /** Today's date in Berlin as a UTC-midnight Date, so date-only maths ignores the server's timezone. */
-function berlinToday(now = new Date()) {
+export function berlinToday(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
   return new Date(parts + "T00:00:00Z");
 }

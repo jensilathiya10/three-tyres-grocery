@@ -370,7 +370,7 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [x] S-03 Login rate limit / lockout — done: 5 wrong tries → 15 min lockout per IP
 - [ ] S-10 Strong production database password
 - [x] O-01 Bundles reduce component stock — done: packs reserve and restock their parts; pack stock shown as its scarcest part
-- [ ] O-02 Auto-cancel unconfirmed orders
+- [x] O-02 Auto-cancel unconfirmed orders — done: WhatsApp orders after 24 h, any "New" order after its delivery day; runs in admin, at checkout and via /api/cron/cleanup (needs a scheduler once hosted)
 - [ ] O-03 Create orders from the admin (WhatsApp/phone)
 - [ ] N-01 New-order alert to shop owner
 - [ ] N-02 Order confirmation email to customer

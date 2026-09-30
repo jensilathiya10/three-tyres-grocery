@@ -5,12 +5,15 @@ import { StatusForm } from "@/components/admin/StatusForm";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { Icon } from "@/components/Icon";
 import { requireAdmin } from "@/lib/auth";
+import { autoCancelAt, releaseStaleOrders } from "@/lib/orders";
 import { db } from "@/lib/db";
 import { formatDateTime, formatDay, money, orderNo } from "@/lib/format";
 import { waCustomerLink } from "@/lib/whatsapp";
 
 export default async function OrderDetail({ params }: PageProps<"/admin/orders/[id]">) {
   await requireAdmin();
+  // Cancel orders nobody confirmed, so the numbers below are current
+  await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
   const { id } = await params;
   const o = await db.order.findUnique({ where: { id }, include: { items: { include: { product: { select: { slug: true, id: true } } } } } });
   if (!o) notFound();
@@ -18,6 +21,7 @@ export default async function OrderDetail({ params }: PageProps<"/admin/orders/[
   const first = o.customerName.split(" ")[0];
   const waText = `Hi ${first}, this is Three Tyres Grocery about your order ${no} (${money(o.totalCents)}).`;
   const cancelled = o.status === "CANCELLED";
+  const deadline = autoCancelAt(o);
   const stripeTestMode = process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_") ?? false;
 
   return (
@@ -62,7 +66,14 @@ export default async function OrderDetail({ params }: PageProps<"/admin/orders/[
             {cancelled ? (
               <p className="muted">This order was cancelled and its items were put back in stock.</p>
             ) : (
-              <StatusForm id={o.id} status={o.status} refundOnCancel={o.paymentMethod === "ONLINE" && o.paymentStatus === "PAID"} />
+              <>
+                {deadline && (
+                  <p className="warn" style={{ marginBottom: 12 }}>
+                    Not confirmed yet. If it&apos;s still New on {formatDateTime(deadline)}, it will be cancelled automatically and its items put back in stock.
+                  </p>
+                )}
+                <StatusForm id={o.id} status={o.status} refundOnCancel={o.paymentMethod === "ONLINE" && o.paymentStatus === "PAID"} />
+              </>
             )}
           </section>
           <section className="card-panel">

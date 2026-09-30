@@ -9,6 +9,7 @@ import { deliveryFee, findArea } from "@/lib/postcode";
 import { deliveryDate, money } from "@/lib/format";
 import { verifyBotCheck } from "@/lib/bot-check";
 import { clientIp, hit, waitText } from "@/lib/rate-limit";
+import { releaseStaleOrders } from "@/lib/orders";
 
 export type CheckoutState = {
   error?: string;
@@ -90,6 +91,9 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
       };
     }
   }
+
+  // Free stock held by orders nobody confirmed
+  await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
 
   let orderId: string;
   try {

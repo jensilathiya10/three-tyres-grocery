@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { setStock, toggleActive } from "@/app/actions/admin";
 import { Icon } from "@/components/Icon";
 import { requireAdmin } from "@/lib/auth";
+import { releaseStaleOrders } from "@/lib/orders";
 import { db } from "@/lib/db";
 import { money } from "@/lib/format";
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = { title: "Products" };
 
 export default async function ProductsPage({ searchParams }: PageProps<"/admin/products">) {
   await requireAdmin();
+  // Cancel orders nobody confirmed, so the numbers below are current
+  await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const cat = typeof sp.cat === "string" ? sp.cat : "";

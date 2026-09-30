@@ -2,6 +2,7 @@ import "server-only";
 import type Stripe from "stripe";
 import { db } from "./db";
 import { stripe } from "./stripe";
+import { berlinToday } from "./format";
 
 // How long an unfinished online payment keeps its stock reserved. Stripe's minimum session life is 30 minutes.
 export const PAYMENT_WINDOW_MIN = 30;
@@ -86,4 +87,41 @@ export async function releaseAbandonedPayments() {
     }
     await cancelAndRestock(o.id, true);
   }
+}
+
+// A WhatsApp order that nobody confirms within this time is cancelled and its stock released
+export const WHATSAPP_CONFIRM_HOURS = 24;
+
+/** When an unconfirmed ("New") order will be cancelled automatically. */
+export function autoCancelAt(order: { status: string; paymentMethod: string; createdAt: Date; deliveryDate: Date }) {
+  if (order.status !== "NEW") return null;
+  // End of the delivery day (the stored date is a Berlin calendar day at UTC midnight)
+  const afterDeliveryDay = new Date(order.deliveryDate.getTime() + 86_400_000);
+  if (order.paymentMethod === "WHATSAPP") {
+    const whatsappDeadline = new Date(order.createdAt.getTime() + WHATSAPP_CONFIRM_HOURS * 3_600_000);
+    return whatsappDeadline < afterDeliveryDay ? whatsappDeadline : afterDeliveryDay;
+  }
+  return afterDeliveryDay;
+}
+
+/**
+ * Cancels orders that were never confirmed, so they stop holding stock:
+ * WhatsApp orders still "New" after 24 hours, and any order still "New" once its delivery day is over.
+ * Cheap to call often; runs on admin page loads, at checkout, and from /api/cron/cleanup.
+ */
+export async function releaseStaleOrders() {
+  const whatsappCutoff = new Date(Date.now() - WHATSAPP_CONFIRM_HOURS * 3_600_000);
+  const stale = await db.order.findMany({
+    where: {
+      status: "NEW",
+      OR: [
+        { paymentMethod: "WHATSAPP", createdAt: { lt: whatsappCutoff } },
+        { deliveryDate: { lt: berlinToday() } },
+      ],
+    },
+    select: { id: true },
+  });
+  let cancelled = 0;
+  for (const o of stale) if (await cancelAndRestock(o.id)) cancelled++;
+  return cancelled;
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import { STATUS_LABEL, STATUS_TABS } from "@/components/admin/StatusPill";
 import { requireAdmin } from "@/lib/auth";
+import { releaseStaleOrders } from "@/lib/orders";
 import { db } from "@/lib/db";
 import type { OrderStatus } from "@/generated/prisma/client";
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = { title: "Orders" };
 
 export default async function OrdersPage({ searchParams }: PageProps<"/admin/orders">) {
   await requireAdmin();
+  // Cancel orders nobody confirmed, so the numbers below are current
+  await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
   const sp = await searchParams;
   const status = STATUS_TABS.find((s) => s === sp.status) as OrderStatus | undefined;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";

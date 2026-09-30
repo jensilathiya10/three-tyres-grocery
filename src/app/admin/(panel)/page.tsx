@@ -2,6 +2,7 @@ import Link from "next/link";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import { Icon } from "@/components/Icon";
 import { requireAdmin } from "@/lib/auth";
+import { releaseStaleOrders } from "@/lib/orders";
 import { db } from "@/lib/db";
 import { money } from "@/lib/format";
 
@@ -17,6 +18,8 @@ function startOfBerlinDay() {
 
 export default async function Dashboard() {
   await requireAdmin();
+  // Cancel orders nobody confirmed, so the numbers below are current
+  await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
   const since = startOfBerlinDay();
   const [today, open, activeProducts, lowStock, recent] = await Promise.all([
     db.order.aggregate({ where: { createdAt: { gte: since }, status: { notIn: ["CANCELLED", "AWAITING_PAYMENT"] } }, _count: true, _sum: { totalCents: true } }),
