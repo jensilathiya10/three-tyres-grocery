@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// All money is stored in euro cents.
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  short    String
+  color    String    @default("#C9A227")
+  blurb    String    @default("")
+  sort     Int       @default(0)
+  products Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  brand       String
+  label       String // short text printed on the pack illustration
+  size        String
+  description String      @default("")
+  allergens   String      @default("")
+  origin      String      @default("India")
+  priceCents  Int
+  wasCents    Int? // original price, only for real discounts
+  stock       Int         @default(0)
+  popular     Boolean     @default(false)
+  active      Boolean     @default(true)
+  imageUrl    String?
+  packBg      String      @default("#176B45")
+  packFg      String      @default("#FFFDF8")
+  packShape   String      @default("box") // sack | box | pouch | jar
+  contents    String[]    @default([]) // product slugs, for bundles like the student pack
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+}
+
+model DeliveryArea {
+  id            String  @id @default(cuid())
+  name          String
+  postcodeFrom  Int
+  postcodeTo    Int
+  feeCents      Int
+  freeOverCents Int
+  minOrderCents Int
+  estimatedDays Int     @default(1)
+  active        Boolean @default(true)
+}
+
+enum OrderStatus {
+  AWAITING_PAYMENT // online payment started, not finished yet; stock is reserved
+  NEW
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  ONLINE // Stripe Checkout: card, Apple Pay, Google Pay, PayPal, Klarna…
+  ON_DELIVERY
+  WHATSAPP
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  number           Int           @unique @default(autoincrement())
+  customerName     String
+  phone            String
+  email            String
+  street           String
+  apartment        String        @default("")
+  postcode         String
+  city             String        @default("Berlin")
+  note             String        @default("")
+  subtotalCents    Int
+  deliveryFeeCents Int
+  totalCents       Int
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus @default(UNPAID)
+  status           OrderStatus   @default(NEW)
+  stripeSessionId  String?       @unique
+  stripePaymentId  String? // PaymentIntent, used for refunds
+  paidAt           DateTime?
+  deliveryDate     DateTime      @db.Date
+  items            OrderItem[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  name       String // snapshot at time of order
+  size       String
+  priceCents Int
+  quantity   Int
+
+  @@index([orderId])
+}
