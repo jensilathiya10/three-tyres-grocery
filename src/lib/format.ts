@@ -1,6 +1,7 @@
 export const money = (cents: number) => "€" + (cents / 100).toFixed(2);
 
-export const orderNo = (n: number) => `IGB-${1000 + n}`;
+// TTG = Three Tyres Grocery. Early orders were shown as IGB-…; admin search accepts both.
+export const orderNo = (n: number) => `TTG-${1000 + n}`;
 
 export const savePct = (priceCents: number, wasCents: number) => Math.round((1 - priceCents / wasCents) * 100);
 

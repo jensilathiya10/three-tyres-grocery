@@ -21,8 +21,10 @@ export default async function Dashboard() {
   // Cancel orders nobody confirmed, so the numbers below are current
   await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
   const since = startOfBerlinDay();
-  const [today, open, activeProducts, lowStock, recent] = await Promise.all([
+  const [today, paidToday, open, activeProducts, lowStock, recent] = await Promise.all([
     db.order.aggregate({ where: { createdAt: { gte: since }, status: { notIn: ["CANCELLED", "AWAITING_PAYMENT"] } }, _count: true, _sum: { totalCents: true } }),
+    // Money actually received today, whenever the order was placed
+    db.order.aggregate({ where: { paidAt: { gte: since }, paymentStatus: "PAID" }, _sum: { totalCents: true } }),
     db.order.count({ where: { status: { in: ["NEW", "CONFIRMED", "PREPARING", "OUT_FOR_DELIVERY"] } } }),
     db.product.count({ where: { active: true } }),
     db.product.findMany({ where: { active: true, stock: { lte: LOW_STOCK } }, orderBy: { stock: "asc" }, select: { id: true, name: true, size: true, stock: true } }),
@@ -33,8 +35,13 @@ export default async function Dashboard() {
     <>
       <div className="admin-head"><h1>Dashboard</h1></div>
       <div className="tiles">
-        <div className="tile"><span>Today&apos;s orders</span><b>{today._count}</b></div>
-        <div className="tile"><span>Today&apos;s revenue</span><b>{money(today._sum.totalCents ?? 0)}</b></div>
+        <div className="tile">
+          <span>Today&apos;s orders</span><b>{today._count}</b>
+          <span className="muted" style={{ fontSize: 13, fontWeight: 500 }}>worth {money(today._sum.totalCents ?? 0)}</span>
+        </div>
+        <div className="tile" title="Orders marked paid today (on-delivery orders are marked paid when delivered)">
+          <span>Paid today</span><b>{money(paidToday._sum.totalCents ?? 0)}</b>
+        </div>
         <div className="tile"><span>Open orders</span><b>{open}</b></div>
         <div className={`tile${lowStock.length ? " alerting" : ""}`}><span>Low or out of stock</span><b>{lowStock.length}</b></div>
       </div>

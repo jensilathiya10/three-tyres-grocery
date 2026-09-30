@@ -393,8 +393,8 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] S-04 Individual admin accounts
 - [ ] S-07 Security headers
 - [ ] O-04 Edit orders
-- [ ] O-05 Order number prefix TTG-
-- [ ] O-06 Dashboard "revenue" wording
+- [x] O-05 Order number prefix TTG- — done: orders show as TTG-…; admin search still finds IGB-… numbers
+- [x] O-06 Dashboard "revenue" wording — done: "Today's orders" shows count and value; new "Paid today" tile uses the payment date
 - [ ] O-11 Make seeding safe
 - [ ] N-03 Status update messages to customers
 - [ ] P-01 Decide on the switched-off Stripe code

@@ -16,7 +16,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
   const sp = await searchParams;
   const status = STATUS_TABS.find((s) => s === sp.status) as OrderStatus | undefined;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
-  const num = Number(q.replace(/^IGB-/i, "")) - 1000;
+  const num = Number(q.replace(/^(TTG|IGB)-/i, "")) - 1000;
 
   const [orders, counts] = await Promise.all([
     db.order.findMany({
@@ -38,7 +38,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
         <h1>Orders</h1>
         <form className="inline-form">
           {status && <input type="hidden" name="status" value={status} />}
-          <input className="input" style={{ width: 240 }} name="q" defaultValue={q} placeholder="Name, phone or IGB-1001" aria-label="Search orders" />
+          <input className="input" style={{ width: 240 }} name="q" defaultValue={q} placeholder="Name, phone or TTG-1001" aria-label="Search orders" />
           <button className="btn btn-ghost btn-sm">Search</button>
         </form>
       </div>
