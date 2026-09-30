@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { getDeliveryAreas } from "@/lib/catalog";
 import { deliveryFee, findArea } from "@/lib/postcode";
 import { deliveryDate, money } from "@/lib/format";
+import { verifyBotCheck } from "@/lib/bot-check";
+import { clientIp, hit, waitText } from "@/lib/rate-limit";
 
 export type CheckoutState = {
   error?: string;
@@ -33,6 +35,11 @@ const itemsSchema = z
   .max(60);
 
 class CheckoutError extends Error {}
+
+// Generous for real customers (who may re-order after a mistake), tight enough to stop stock being locked up by spam
+const ORDERS_PER_IP_PER_HOUR = 5;
+const ORDERS_PER_PHONE = 4;
+const ORDERS_PER_PHONE_WINDOW_SEC = 6 * 3600;
 
 export async function placeOrder(_prev: CheckoutState, formData: FormData): Promise<CheckoutState> {
   const raw = Object.fromEntries(
@@ -64,6 +71,26 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
 
   const f = parsed.data;
   const area = pc.area;
+
+  // Stop bots and fake orders before any stock is reserved
+  const ip = await clientIp();
+  if (!(await verifyBotCheck(String(formData.get("cf-turnstile-response") ?? ""), ip))) {
+    return { error: "Please complete the \"I'm not a robot\" check, then place your order again.", values: raw };
+  }
+  const phoneDigits = f.phone.replace(/\D/g, "").replace(/^(00|0)/, "");
+  for (const [key, max, windowSec] of [
+    [`order:ip:${ip}`, ORDERS_PER_IP_PER_HOUR, 3600],
+    [`order:phone:${phoneDigits}`, ORDERS_PER_PHONE, ORDERS_PER_PHONE_WINDOW_SEC],
+  ] as const) {
+    const limit = await hit(key, max, windowSec);
+    if (!limit.ok) {
+      return {
+        error: `You've placed several orders in a short time. Please try again in ${waitText(limit.retryAfterSec)}, or message us on WhatsApp and we'll help.`,
+        values: raw,
+      };
+    }
+  }
+
   let orderId: string;
   try {
     orderId = await db.$transaction(async (tx) => {

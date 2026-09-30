@@ -365,9 +365,9 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] L-08 Full food information (ingredients, allergens, nutrition, storage, operator)
 - [ ] L-10 Remove placeholder texts; set contact email
 - [ ] L-11 Legal texts in German
-- [ ] S-01 Change default admin password
-- [ ] S-02 Stop fake orders (rate limit + bot check)
-- [ ] S-03 Login rate limit / lockout
+- [x] S-01 Change default admin password — done: random password in .env; production refuses weak passwords
+- [x] S-02 Stop fake orders (rate limit + bot check) — done: 5/hour per IP, 4 per 6 h per phone; Turnstile when keys are set
+- [x] S-03 Login rate limit / lockout — done: 5 wrong tries → 15 min lockout per IP
 - [ ] S-10 Strong production database password
 - [ ] O-01 Bundles reduce component stock
 - [ ] O-02 Auto-cancel unconfirmed orders
@@ -379,7 +379,8 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] D-02 Order cut-off time
 - [ ] U-02 Real-phone layout test
 - [ ] C-01 Real catalogue, prices and stock
-- [ ] Q-01 / Q-02 Commit and push to a private git remote
+- [x] Q-01 Commit — done on branch launch-prep
+- [ ] Q-02 Push to a private git remote (needs your GitHub/GitLab account)
 - [ ] Z-01 … Z-06, Z-10 Hosting, domain, HTTPS, backups, safe migrations, production env vars
 - [ ] B-01 … B-04, B-06, B-07 Business registration, food registration, packaging register, insurance, delivery rules, card terminal
 

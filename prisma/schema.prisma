@@ -125,3 +125,12 @@ model OrderItem {
 
   @@index([orderId])
 }
+
+// Counters for rate limiting (login attempts, orders per IP/phone). Rows expire after their window.
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}

@@ -11,20 +11,35 @@ import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/sessi
 import type { OrderStatus } from "@/generated/prisma/client";
 import { cancelAndRestock, expireSession } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
+import { clientIp, hit, peek, reset, waitText } from "@/lib/rate-limit";
 
 /* ---------- Session ---------- */
 
 const hash = (s: string) => createHash("sha256").update(s).digest();
 
+const LOGIN_MAX_FAILS = 5;
+const LOGIN_WINDOW_SEC = 15 * 60;
+const WEAK_PASSWORDS = new Set(["change-me", "password", "admin", "123456"]);
+
 export async function login(_prev: { error?: string }, formData: FormData): Promise<{ error?: string }> {
   const expected = process.env.ADMIN_PASSWORD;
   if (!expected) return { error: "ADMIN_PASSWORD is not set on the server." };
+  if (process.env.NODE_ENV === "production" && (expected.length < 12 || WEAK_PASSWORDS.has(expected))) {
+    return { error: "Admin sign-in is disabled until ADMIN_PASSWORD is changed to a strong password (12+ characters)." };
+  }
+  const key = `login:${await clientIp()}`;
+  const blocked = await peek(key, LOGIN_MAX_FAILS);
+  if (!blocked.ok) return { error: `Too many wrong passwords. Try again in ${waitText(blocked.retryAfterSec)}.` };
+
   const given = String(formData.get("password") ?? "");
   // Compare fixed-length hashes so timing doesn't leak the password length
   if (!timingSafeEqual(hash(given), hash(expected))) {
+    const after = await hit(key, LOGIN_MAX_FAILS, LOGIN_WINDOW_SEC);
     await new Promise((r) => setTimeout(r, 600)); // slow down guessing
-    return { error: "That password isn't right." };
+    const left = LOGIN_MAX_FAILS - after.count;
+    return { error: left > 0 ? `That password isn't right. ${left} ${left === 1 ? "try" : "tries"} left.` : `Too many wrong passwords. Try again in ${waitText(after.retryAfterSec)}.` };
   }
+  await reset(key);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, await createSessionToken(), {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: SESSION_MAX_AGE,

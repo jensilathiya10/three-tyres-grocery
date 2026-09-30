@@ -9,6 +9,7 @@ import { deliveryDate, formatDay, money } from "@/lib/format";
 import { deliveryFee, findArea, type AreaRule } from "@/lib/postcode";
 import { useCart } from "./CartProvider";
 import { lineProblem } from "./CartView";
+import { Turnstile } from "./Turnstile";
 
 type FieldProps = {
   id: string; label: string; state: CheckoutState; type?: string; autoComplete?: string; inputMode?: "tel" | "email" | "numeric" | "text";
@@ -33,7 +34,7 @@ function Field({ id, label, state, type = "text", autoComplete, inputMode, place
 
 const DRAFT_KEY = "threetyres-checkout-draft";
 
-export function CheckoutForm({ areas }: { areas: AreaRule[] }) {
+export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; botCheckSiteKey?: string }) {
   const { lines, ready, subtotalCents: sub } = useCart();
   const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {});
   const [postcode, setPostcode] = useState(state.values?.postcode ?? "");
@@ -146,6 +147,7 @@ export function CheckoutForm({ areas }: { areas: AreaRule[] }) {
           {state.fieldErrors?.payment && <p className="err" style={{ marginTop: 8 }}>{state.fieldErrors.payment}</p>}
         </fieldset>
 
+        {botCheckSiteKey && <Turnstile siteKey={botCheckSiteKey} />}
         <button className="btn btn-primary btn-block" type="submit" disabled={pending} style={{ paddingBlock: 16, fontSize: 16 }}>
           {pending ? "Placing your order…" : <>Place order · <span className="num">{money(sub + fee)}</span></>}
         </button>
