@@ -18,11 +18,13 @@ export type ProductView = {
   packBg: string;
   packFg: string;
   packShape: string;
+  netQuantity: number | null;
+  netUnit: string | null;
 };
 
 const productSelect = {
   id: true, slug: true, name: true, brand: true, label: true, size: true, priceCents: true, wasCents: true,
-  stock: true, imageUrl: true, packBg: true, packFg: true, packShape: true,
+  stock: true, imageUrl: true, packBg: true, packFg: true, packShape: true, netQuantity: true, netUnit: true,
 } satisfies Prisma.ProductSelect;
 
 const withContents = { ...productSelect, contents: true } satisfies Prisma.ProductSelect;
@@ -110,6 +112,6 @@ export async function getMainArea() {
 
 /** Strip a full product row down to the fields client components need. */
 export function toView(p: ProductView): ProductView {
-  const { id, slug, name, brand, label, size, priceCents, wasCents, stock, imageUrl, packBg, packFg, packShape } = p;
-  return { id, slug, name, brand, label, size, priceCents, wasCents, stock, imageUrl, packBg, packFg, packShape };
+  const { id, slug, name, brand, label, size, priceCents, wasCents, stock, imageUrl, packBg, packFg, packShape, netQuantity, netUnit } = p;
+  return { id, slug, name, brand, label, size, priceCents, wasCents, stock, imageUrl, packBg, packFg, packShape, netQuantity, netUnit };
 }

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { parseSize } from "../src/lib/unit-price";
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
@@ -77,6 +78,7 @@ async function main() {
       name: p.name, brand: p.brand, label: p.label, size: p.size, allergens: p.allergens ?? "",
       priceCents: cents(p.price), wasCents: p.was ? cents(p.was) : null, stock: p.stock, popular: !!p.popular,
       packBg: p.pack[0], packFg: p.pack[1], packShape: p.pack[2], contents: p.contents ?? [], categoryId: cats[p.cat],
+      ...(parseSize(p.size) ?? {}),
     };
     await db.product.upsert({ where: { slug: p.slug }, update: data, create: { slug: p.slug, ...data } });
   }

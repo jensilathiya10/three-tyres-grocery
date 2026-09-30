@@ -8,12 +8,16 @@ export type ProductFormValues = {
   id: string; name: string; brand: string; label: string; size: string; slug: string; categoryId: string;
   price: string; was: string; stock: string; description: string; allergens: string; origin: string;
   imageUrl: string; packBg: string; packFg: string; packShape: string; popular: boolean; active: boolean;
+  netQuantity: string; netUnit: string; ingredients: string; nutrition: string; storage: string; foodOperator: string;
 };
 
 const BLANK: ProductFormValues = {
   id: "", name: "", brand: "", label: "", size: "", slug: "", categoryId: "", price: "", was: "", stock: "0",
   description: "", allergens: "", origin: "India", imageUrl: "", packBg: "#176B45", packFg: "#FFFDF8", packShape: "box", popular: false, active: true,
+  netQuantity: "", netUnit: "g", ingredients: "", nutrition: "", storage: "", foodOperator: "",
 };
+
+const NUTRITION_EXAMPLE = "Energy: 1450 kJ / 346 kcal\nFat: 1.5 g\nof which saturates: 0.3 g\nCarbohydrate: 58 g\nof which sugars: 2 g\nProtein: 22 g\nSalt: 0.05 g";
 
 export function ProductForm({ product, categories }: { product: ProductFormValues | null; categories: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState<ProductFormState, FormData>(saveProduct, {});
@@ -47,7 +51,18 @@ export function ProductForm({ product, categories }: { product: ProductFormValue
           <div className="fields">
             {text("name", "Product name", { required: true, placeholder: "Toor Dal" })}
             {text("brand", "Brand", { required: true, placeholder: "TRS" })}
-            {text("size", "Pack size", { required: true, placeholder: "1 kg" })}
+            {text("size", "Pack size (as shown)", { required: true, placeholder: "1 kg" })}
+            <div className="field">
+              <label htmlFor="p-netQuantity">Net quantity</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input className="input" id="p-netQuantity" name="netQuantity" inputMode="decimal" value={v.netQuantity} onChange={set("netQuantity")} placeholder="500" aria-invalid={state.errors?.netQuantity ? true : undefined} />
+                <select className="input" name="netUnit" value={v.netUnit} onChange={set("netUnit")} aria-label="Unit" style={{ width: 90 }}>
+                  <option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="l">l</option><option value="pcs">pieces</option>
+                </select>
+              </div>
+              {!state.errors?.netQuantity && <p className="hint">Used for the price per kg / litre, which German law requires.</p>}
+              {err("netQuantity")}
+            </div>
             <div className="field">
               <label htmlFor="p-categoryId">Category</label>
               <select className="input" id="p-categoryId" name="categoryId" value={v.categoryId} onChange={set("categoryId")} required>
@@ -76,10 +91,25 @@ export function ProductForm({ product, categories }: { product: ProductFormValue
         </section>
         <section className="card-panel">
           <h2>Label information</h2>
-          <p className="hint" style={{ marginBottom: 12 }}>Copy these from the real pack. Food law requires accurate allergen information.</p>
+          <p className="hint" style={{ marginBottom: 12 }}>Copy these from the real pack. EU food law requires this information to be shown before customers order.</p>
           <div className="fields">
-            {text("allergens", "Allergens", { placeholder: "Contains wheat (gluten)." })}
+            <div className="field span2">
+              <label htmlFor="p-ingredients">Ingredients</label>
+              <textarea className="input" id="p-ingredients" name="ingredients" rows={3} value={v.ingredients} onChange={set("ingredients")} placeholder="Whole **wheat** flour (100%)" />
+              <p className="hint">Put allergens between double stars to show them in bold, e.g. **wheat**, **milk**, **peanuts**.</p>
+            </div>
+            {text("allergens", "Allergen summary", { placeholder: "Contains wheat (gluten)." })}
             {text("origin", "Country of origin")}
+            <div className="field span2">
+              <label htmlFor="p-nutrition">Nutrition per 100 g / 100 ml</label>
+              <textarea className="input" id="p-nutrition" name="nutrition" rows={5} value={v.nutrition} onChange={set("nutrition")} placeholder={NUTRITION_EXAMPLE} />
+              <p className="hint">One line per value, as &quot;Name: value&quot;.</p>
+            </div>
+            {text("storage", "Storage", { placeholder: "Store in a cool, dry place." })}
+            <div className="field">
+              <label htmlFor="p-foodOperator">Responsible food business (name and address on the label)</label>
+              <textarea className="input" id="p-foodOperator" name="foodOperator" rows={2} value={v.foodOperator} onChange={set("foodOperator")} placeholder={"Importer GmbH\nStraße 1, 12345 Stadt"} />
+            </div>
           </div>
         </section>
       </div>

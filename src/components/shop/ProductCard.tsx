@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import type { ProductView } from "@/lib/catalog";
 import { money, savePct } from "@/lib/format";
+import { unitPrice } from "@/lib/unit-price";
 import { PackArt } from "@/components/PackArt";
 import { BuyControl } from "@/components/cart/BuyControl";
 
@@ -14,6 +15,7 @@ export function StockTag({ p }: { p: ProductView }) {
 
 export function ProductCard({ p }: { p: ProductView }) {
   const href = `/product/${p.slug}`;
+  const perUnit = unitPrice(p.priceCents, p.netQuantity, p.netUnit);
   return (
     <article className="card" style={{ "--pb": p.packBg } as CSSProperties}>
       <Link className="media" href={href} aria-label={`View ${p.name}`}>
@@ -23,7 +25,7 @@ export function ProductCard({ p }: { p: ProductView }) {
       <div className="body">
         <span className="brand">{p.brand}</span>
         <Link className="pname" href={href}>{p.name}</Link>
-        <span className="size">{p.size}</span>
+        <span className="size">{p.size}{perUnit && <> · {perUnit}</>}</span>
         <div className="buy">
           <div className="price">
             {money(p.priceCents)}

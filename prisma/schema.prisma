@@ -30,6 +30,14 @@ model Product {
   description String      @default("")
   allergens   String      @default("")
   origin      String      @default("India")
+  // Net quantity for the unit price (Grundpreis, PAngV): e.g. 500 + "g" → €/kg. Null for items sold by the piece.
+  netQuantity Float?
+  netUnit     String? // g | kg | ml | l | pcs
+  // Food information required online before purchase (EU FIC / LMIV Art. 14). Copy from the pack label.
+  ingredients  String @default("") // allergens in **bold**
+  nutrition    String @default("") // one "Label: value" per line, per 100 g/ml
+  storage      String @default("")
+  foodOperator String @default("") // name and address of the food business operator on the label
   priceCents  Int
   wasCents    Int? // original price, only for real discounts
   stock       Int         @default(0)

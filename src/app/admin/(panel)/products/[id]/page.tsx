@@ -26,6 +26,8 @@ export default async function EditProduct({ params }: PageProps<"/admin/products
           stock: String(product.stock), description: product.description, allergens: product.allergens, origin: product.origin,
           imageUrl: product.imageUrl ?? "", packBg: product.packBg, packFg: product.packFg, packShape: product.packShape,
           popular: product.popular, active: product.active,
+          netQuantity: product.netQuantity != null ? String(product.netQuantity) : "", netUnit: product.netUnit ?? "g",
+          ingredients: product.ingredients, nutrition: product.nutrition, storage: product.storage, foodOperator: product.foodOperator,
         }}
       />
     </>

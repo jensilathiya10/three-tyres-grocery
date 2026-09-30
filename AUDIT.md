@@ -360,9 +360,9 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] L-03 Terms of sale (AGB) + link at checkout — draft at /agb, linked under the order button; **you:** decide the open points, get it checked
 - [ ] L-04 Withdrawal information (Widerrufsbelehrung) — page at /widerruf with the details to insert; **you:** paste the official model text + form
 - [x] L-05 Order button "Zahlungspflichtig bestellen" / "Order and pay" — done: button reads "Order and pay · €…"
-- [ ] L-06 Unit prices (€/kg, €/l)
+- [x] L-06 Unit prices (€/kg, €/l) — done: net quantity + unit per product (filled for all 31 from their size labels), price per kg/l on cards and product pages
 - [x] L-07 "incl. VAT, plus delivery" near prices — done on product page, shop list, cart and checkout
-- [ ] L-08 Full food information (ingredients, allergens, nutrition, storage, operator)
+- [ ] L-08 Full food information (ingredients, allergens, nutrition, storage, operator) — fields and product-page display done, allergens bold, admin flags products still missing it. **You:** copy the real label text for each product
 - [x] L-10 Remove placeholder texts; set contact email — done: footer links to the legal pages; contact email row hidden until set. **You:** set NEXT_PUBLIC_CONTACT_EMAIL
 - [ ] L-11 Legal texts in German — drafts are German with English summaries; final wording pending review
 - [x] S-01 Change default admin password — done: random password in .env; production refuses weak passwords

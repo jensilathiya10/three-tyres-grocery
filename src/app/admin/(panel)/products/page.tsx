@@ -57,6 +57,9 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/p
                 <td>
                   <Link className="rowlink" href={`/admin/products/${p.id}`}>{p.name}</Link>
                   <div className="muted" style={{ fontSize: 13 }}>{p.brand} · {p.size}{p.popular ? " · Popular" : ""}</div>
+                  {!p.contents.length && (!p.ingredients || !p.nutrition || !p.netQuantity) && (
+                    <span className="pill pill-NEW" style={{ marginTop: 4 }} title="Ingredients, nutrition or net quantity missing">Label info missing</span>
+                  )}
                 </td>
                 <td className="muted">{p.category.name}</td>
                 <td className="r">

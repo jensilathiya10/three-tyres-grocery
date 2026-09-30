@@ -12,6 +12,7 @@ import type { OrderStatus } from "@/generated/prisma/client";
 import { cancelAndRestock, expireSession } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 import { clientIp, hit, peek, reset, waitText } from "@/lib/rate-limit";
+import { NET_UNITS } from "@/lib/unit-price";
 
 /* ---------- Session ---------- */
 
@@ -136,6 +137,17 @@ const productSchema = z.object({
   packShape: z.enum(["sack", "box", "pouch", "jar"]),
   popular: z.boolean(),
   active: z.boolean(),
+  netQuantity: z.string().trim().transform((v, ctx) => {
+    if (!v) return null;
+    const n = Number(v.replace(",", "."));
+    if (!Number.isFinite(n) || n <= 0) { ctx.addIssue({ code: "custom", message: "Enter the net quantity as a number, e.g. 500" }); return z.NEVER; }
+    return n;
+  }),
+  netUnit: z.enum(NET_UNITS),
+  ingredients: z.string().trim().max(3000),
+  nutrition: z.string().trim().max(1500),
+  storage: z.string().trim().max(300),
+  foodOperator: z.string().trim().max(300),
 });
 
 export type ProductFormState = { errors?: Record<string, string>; error?: string };
@@ -147,7 +159,8 @@ export async function saveProduct(_prev: ProductFormState, formData: FormData): 
   const id = String(formData.get("id") ?? "");
   const get = (k: string) => String(formData.get(k) ?? "");
   const parsed = productSchema.safeParse({
-    ...Object.fromEntries(["name", "brand", "label", "size", "slug", "categoryId", "price", "was", "stock", "description", "allergens", "origin", "imageUrl", "packBg", "packFg", "packShape"].map((k) => [k, get(k)])),
+    ...Object.fromEntries(["name", "brand", "label", "size", "slug", "categoryId", "price", "was", "stock", "description", "allergens", "origin", "imageUrl", "packBg", "packFg", "packShape",
+      "netQuantity", "netUnit", "ingredients", "nutrition", "storage", "foodOperator"].map((k) => [k, get(k)])),
     popular: formData.get("popular") === "on",
     active: formData.get("active") === "on",
   });
@@ -165,6 +178,8 @@ export async function saveProduct(_prev: ProductFormState, formData: FormData): 
     priceCents: d.price, wasCents: d.was, stock: d.stock, description: d.description, allergens: d.allergens,
     origin: d.origin || "India", imageUrl: d.imageUrl || null, packBg: d.packBg, packFg: d.packFg, packShape: d.packShape,
     popular: d.popular, active: d.active,
+    netQuantity: d.netQuantity, netUnit: d.netQuantity ? d.netUnit : null,
+    ingredients: d.ingredients, nutrition: d.nutrition, storage: d.storage, foodOperator: d.foodOperator,
   };
   const clash = await db.product.findFirst({ where: { slug: data.slug, NOT: id ? { id } : undefined } });
   if (clash) return { errors: { slug: "Another product already uses this web address." } };

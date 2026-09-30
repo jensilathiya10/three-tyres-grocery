@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
+import { unitPrice } from "@/lib/unit-price";
 import { Icon } from "@/components/Icon";
 import { PackArt } from "@/components/PackArt";
 import { AddToCartBox } from "@/components/cart/BuyControl";
@@ -28,6 +29,15 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const view = toView(p);
   const more = related.filter((x) => x.id !== p.id && x.stock > 0).slice(0, 4);
   const contentsTotal = p.contents.reduce((s, x) => s + x.priceCents, 0);
+  const perUnit = unitPrice(p.priceCents, p.netQuantity, p.netUnit);
+  // "Energy: 1500 kJ / 355 kcal" per line → table rows
+  const nutrition = p.nutrition
+    .split(/\r?\n/)
+    .map((line) => {
+      const i = line.indexOf(":");
+      return i < 0 ? ["", ""] : [line.slice(0, i).trim(), line.slice(i + 1).trim()];
+    })
+    .filter(([k, v]) => k && v) as [string, string][];
 
   return (
     <div className="wrap">
@@ -50,7 +60,9 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             <span className="price">{money(p.priceCents)}</span>
             {p.wasCents && <><span className="was">{money(p.wasCents)}</span><span className="save">Save {money(p.wasCents - p.priceCents)}</span></>}
           </div>
-          <p className="hint" style={{ marginTop: 6 }}>Incl. VAT, plus <Link className="link" href="/info#delivery" style={{ fontWeight: 600 }}>delivery</Link></p>
+          <p className="hint" style={{ marginTop: 6 }}>
+            {perUnit && <>{perUnit} · </>}Incl. VAT, plus <Link className="link" href="/info#delivery" style={{ fontWeight: 600 }}>delivery</Link>
+          </p>
           {p.stock <= 0 ? <p className="stock out">Out of stock. Ask us on WhatsApp when it&apos;s back.</p>
             : p.stock <= 5 ? <p className="stock low">Only {p.stock} left in stock</p>
             : <p className="stock">In stock</p>}
@@ -91,11 +103,22 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             <h2>Product information</h2>
             <dl>
               <dt>Brand</dt><dd>{p.brand}</dd>
-              <dt>Pack size</dt><dd>{p.size}</dd>
+              <dt>Net quantity</dt><dd>{p.size}</dd>
               <dt>Category</dt><dd>{p.category.name}</dd>
               <dt>Country of origin</dt><dd>{p.origin}</dd>
-              <dt>Allergens</dt><dd>{p.allergens || "See the pack label for full allergen information."}</dd>
+              {p.ingredients && <><dt>Ingredients</dt><dd><Emphasised text={p.ingredients} /></dd></>}
+              <dt>Allergens</dt><dd>{p.allergens || (p.ingredients ? "See the highlighted ingredients." : "See the pack label for full allergen information.")}</dd>
+              {p.storage && <><dt>Storage</dt><dd>{p.storage}</dd></>}
+              {p.foodOperator && <><dt>Responsible food business</dt><dd style={{ whiteSpace: "pre-line" }}>{p.foodOperator}</dd></>}
             </dl>
+            {nutrition.length > 0 && (
+              <>
+                <h3 style={{ fontSize: 16, marginTop: 20, marginBottom: 6 }}>Nutrition per 100 g / 100 ml</h3>
+                <dl>
+                  {nutrition.map(([k, v]) => <Fragment key={k}><dt>{k}</dt><dd className="num">{v}</dd></Fragment>)}
+                </dl>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -107,4 +130,11 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       )}
     </div>
   );
+}
+
+/** Shows ingredient text with **allergens** in bold, as EU food law requires. Escapes everything else. */
+function Emphasised({ text }: { text: string }) {
+  return <>{text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : <Fragment key={i}>{part}</Fragment>,
+  )}</>;
 }
