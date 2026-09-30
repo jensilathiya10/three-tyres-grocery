@@ -369,7 +369,7 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [x] S-02 Stop fake orders (rate limit + bot check) — done: 5/hour per IP, 4 per 6 h per phone; Turnstile when keys are set
 - [x] S-03 Login rate limit / lockout — done: 5 wrong tries → 15 min lockout per IP
 - [ ] S-10 Strong production database password
-- [ ] O-01 Bundles reduce component stock
+- [x] O-01 Bundles reduce component stock — done: packs reserve and restock their parts; pack stock shown as its scarcest part
 - [ ] O-02 Auto-cancel unconfirmed orders
 - [ ] O-03 Create orders from the admin (WhatsApp/phone)
 - [ ] N-01 New-order alert to shop owner

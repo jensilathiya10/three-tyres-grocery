@@ -122,6 +122,8 @@ model OrderItem {
   size       String
   priceCents Int
   quantity   Int
+  // For bundles: the product ids reserved per bundle (one entry per unit), so cancelling restocks exactly these
+  bundlePartIds String[] @default([])
 
   @@index([orderId])
 }

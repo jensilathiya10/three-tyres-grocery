@@ -16,7 +16,10 @@ export async function cancelAndRestock(orderId: string, onlyIfAwaitingPayment = 
     const claimed = await tx.order.updateMany({ where: { id: orderId, status: order.status }, data: { status: "CANCELLED" } });
     if (claimed.count !== 1) return false;
     for (const it of order.items) {
-      await tx.product.update({ where: { id: it.productId }, data: { stock: { increment: it.quantity } } });
+      // A pack gives back its own count plus every product that was reserved inside it
+      for (const productId of [it.productId, ...it.bundlePartIds]) {
+        await tx.product.update({ where: { id: productId }, data: { stock: { increment: it.quantity } } });
+      }
     }
     return true;
   });

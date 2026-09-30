@@ -25,6 +25,27 @@ const productSelect = {
   stock: true, imageUrl: true, packBg: true, packFg: true, packShape: true,
 } satisfies Prisma.ProductSelect;
 
+const withContents = { ...productSelect, contents: true } satisfies Prisma.ProductSelect;
+
+/**
+ * A bundle (e.g. the Student Starter Pack) can only be sold while every product inside it is on sale and in stock,
+ * so its stock is the lowest of its own stock and its parts' stock.
+ */
+async function applyBundleStock<T extends { stock: number; contents: string[] }>(list: T[]): Promise<T[]> {
+  const slugs = [...new Set(list.flatMap((p) => p.contents))];
+  if (!slugs.length) return list;
+  const parts = await db.product.findMany({ where: { slug: { in: slugs }, active: true }, select: { slug: true, stock: true } });
+  const stockOf = new Map(parts.map((p) => [p.slug, p.stock]));
+  // A slug listed twice means two units per pack
+  const perPack = (contents: string[]) => contents.reduce((m, s) => m.set(s, (m.get(s) ?? 0) + 1), new Map<string, number>());
+  return list.map((p) => {
+    if (!p.contents.length) return p;
+    let stock = p.stock;
+    for (const [slug, n] of perPack(p.contents)) stock = Math.min(stock, Math.floor((stockOf.get(slug) ?? 0) / n));
+    return { ...p, stock };
+  });
+}
+
 export type SortKey = "popular" | "low" | "high" | "new";
 
 export async function getCategories() {
@@ -54,9 +75,9 @@ export async function getProducts(opts: { cat?: string; q?: string; sort?: SortK
     : opts.sort === "high" ? [{ priceCents: "desc" }]
     : opts.sort === "new" ? [{ createdAt: "desc" }]
     : [{ popular: "desc" }, { category: { sort: "asc" } }, { name: "asc" }];
-  const list = await db.product.findMany({ where, orderBy, select: productSelect, take: opts.take });
+  const list = await applyBundleStock(await db.product.findMany({ where, orderBy, select: withContents, take: opts.take }));
   // In-stock first; Array.sort is stable so the chosen order is kept within each group
-  return list.sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0));
+  return list.sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0)).map(toView);
 }
 
 export async function getProduct(slug: string) {
@@ -65,11 +86,12 @@ export async function getProduct(slug: string) {
   const contents = p.contents.length
     ? await db.product.findMany({ where: { slug: { in: p.contents } }, select: productSelect })
     : [];
-  return { ...p, contents };
+  const [withStock] = await applyBundleStock([p]);
+  return { ...p, stock: withStock.stock, contents };
 }
 
 export async function getProductsByIds(ids: string[]) {
-  return db.product.findMany({ where: { id: { in: ids } }, select: { ...productSelect, active: true } });
+  return applyBundleStock(await db.product.findMany({ where: { id: { in: ids } }, select: { ...withContents, active: true } }));
 }
 
 export async function getDeliveryAreas(): Promise<AreaRule[]> {
