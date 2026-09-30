@@ -7,7 +7,7 @@ import { PackArt } from "@/components/PackArt";
 import { AddToCartBox } from "@/components/cart/BuyControl";
 import { ProductGrid, StockTag } from "@/components/shop/ProductCard";
 import { getMainArea, getProduct, getProducts, toView } from "@/lib/catalog";
-import { deliveryDate, formatDay, money } from "@/lib/format";
+import { berlinHour, deliveryDate, formatDay, money } from "@/lib/format";
 import { waShopLink } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
 
           {main && (
             <ul className="perks">
-              <li><Icon name="truck" />Delivered {formatDay(deliveryDate(main.estimatedDays))} if you order today</li>
+              <li><Icon name="truck" />Delivered {formatDay(deliveryDate(main))} if you order {berlinHour() < main.cutoffHour ? `before ${main.cutoffHour}:00 today` : "now"}</li>
               <li><Icon name="box" />Free delivery on orders over {money(main.freeOverCents)}</li>
               <li><Icon name="pin" />{main.name} postcodes {main.postcodeFrom}–{main.postcodeTo}</li>
             </ul>

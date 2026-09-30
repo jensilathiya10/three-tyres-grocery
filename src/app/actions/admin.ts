@@ -202,6 +202,9 @@ const areaSchema = z.object({
   freeOver: euros,
   minOrder: euros,
   estimatedDays: z.coerce.number().int().min(1).max(14),
+  cutoffHour: z.coerce.number().int().min(0, "Cut-off must be an hour from 0 to 23.").max(23, "Cut-off must be an hour from 0 to 23."),
+  excludedPostcodes: z.string().default("").transform((v) => [...new Set(v.split(/[\s,;]+/).filter(Boolean))])
+    .refine((l) => l.every((pc) => /^\d{5}$/.test(pc)), "Excluded postcodes must be 5 digits each, e.g. 12529."),
 }).refine((a) => a.postcodeFrom <= a.postcodeTo, { message: "The first postcode must be lower than the last.", path: ["postcodeTo"] });
 
 export async function saveArea(_prev: { error?: string; ok?: boolean }, formData: FormData): Promise<{ error?: string; ok?: boolean }> {
@@ -212,7 +215,7 @@ export async function saveArea(_prev: { error?: string; ok?: boolean }, formData
   const a = parsed.data;
   const data = {
     name: a.name, postcodeFrom: a.postcodeFrom, postcodeTo: a.postcodeTo, feeCents: a.fee, freeOverCents: a.freeOver,
-    minOrderCents: a.minOrder, estimatedDays: a.estimatedDays, active: formData.get("active") === "on",
+    minOrderCents: a.minOrder, estimatedDays: a.estimatedDays, cutoffHour: a.cutoffHour, excludedPostcodes: a.excludedPostcodes, active: formData.get("active") === "on",
   };
   if (id) await db.deliveryArea.update({ where: { id }, data });
   else await db.deliveryArea.create({ data });

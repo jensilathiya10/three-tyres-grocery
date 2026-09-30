@@ -27,6 +27,7 @@ export default async function InfoPage() {
             <dl key={a.id} style={{ marginBottom: 12 }}>
               <dt>Area</dt><dd>{a.name}, postcodes {a.postcodeFrom}–{a.postcodeTo}</dd>
               <dt>When</dt><dd>{a.estimatedDays === 1 ? "Next day" : `In ${a.estimatedDays} days`}, 16:00–21:00 (Monday to Saturday)</dd>
+              <dt>Order by</dt><dd>{a.cutoffHour}:00. Later orders count as the next day&apos;s.</dd>
               <dt>Delivery fee</dt><dd>{money(a.feeCents)}</dd>
               <dt>Free delivery</dt><dd>On orders over {money(a.freeOverCents)}</dd>
               <dt>Minimum order</dt><dd>{money(a.minOrderCents)}</dd>

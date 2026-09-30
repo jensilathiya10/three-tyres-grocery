@@ -14,7 +14,7 @@ export function PostcodeChecker({ areas, label = "Do we deliver to you?", wide =
     const r = findArea(value, areas);
     setResult(
       r.ok
-        ? { ok: true, msg: `We deliver to ${value.trim()}. Order today and it arrives ${formatDay(deliveryDate(r.area.estimatedDays))}.` }
+        ? { ok: true, msg: `We deliver to ${value.trim()}. Order now and it arrives ${formatDay(deliveryDate(r.area))}.` }
         : { ok: false, msg: r.message },
     );
   }

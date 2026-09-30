@@ -10,10 +10,21 @@ export function berlinToday(now = new Date()) {
   return new Date(parts + "T00:00:00Z");
 }
 
-/** Delivery date `days` working days from today. We don't deliver on Sundays. */
-export function deliveryDate(days = 1, now = new Date()) {
+/** Current hour (0–23) in Berlin. */
+export const berlinHour = (now = new Date()) =>
+  Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Berlin", hour: "2-digit", hourCycle: "h23" }).format(now));
+
+export type DeliveryRule = { estimatedDays: number; cutoffHour: number };
+export const DEFAULT_RULE: DeliveryRule = { estimatedDays: 1, cutoffHour: 20 };
+
+/**
+ * Delivery date for an order placed `now`: `estimatedDays` delivery days later, skipping Sundays.
+ * Orders at or after the cut-off hour count as placed the next day.
+ */
+export function deliveryDate(rule: DeliveryRule = DEFAULT_RULE, now = new Date()) {
   const d = berlinToday(now);
-  let left = Math.max(1, days);
+  if (berlinHour(now) >= rule.cutoffHour) d.setUTCDate(d.getUTCDate() + 1);
+  let left = Math.max(1, rule.estimatedDays);
   while (left > 0) {
     d.setUTCDate(d.getUTCDate() + 1);
     if (d.getUTCDay() !== 0) left--;

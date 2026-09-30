@@ -98,7 +98,7 @@ export async function getDeliveryAreas(): Promise<AreaRule[]> {
   return db.deliveryArea.findMany({
     where: { active: true },
     orderBy: { postcodeFrom: "asc" },
-    select: { id: true, name: true, postcodeFrom: true, postcodeTo: true, feeCents: true, freeOverCents: true, minOrderCents: true, estimatedDays: true },
+    select: { id: true, name: true, postcodeFrom: true, postcodeTo: true, feeCents: true, freeOverCents: true, minOrderCents: true, estimatedDays: true, cutoffHour: true, excludedPostcodes: true },
   });
 }
 

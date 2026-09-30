@@ -145,7 +145,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
           customerName: f.name, phone: f.phone, email: f.email, street: f.street, apartment: f.apartment,
           postcode: raw.postcode.trim(), note: f.note, paymentMethod: f.payment,
           subtotalCents: subtotal, deliveryFeeCents: fee, totalCents: subtotal + fee,
-          deliveryDate: deliveryDate(area.estimatedDays),
+          deliveryDate: deliveryDate(area),
           items: {
             create: products.map((p) => ({
               productId: p.id, name: p.name, size: p.size, priceCents: p.priceCents, quantity: wanted.get(p.id)!,

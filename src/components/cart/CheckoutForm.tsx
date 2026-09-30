@@ -123,7 +123,7 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
             <div className="slot">
               <Icon name="truck" />
               <div>
-                <b>{area.name} delivery · {formatDay(deliveryDate(area.estimatedDays))}</b>
+                <b>{area.name} delivery · {formatDay(deliveryDate(area))}</b>
                 <span className="muted" style={{ fontSize: 14 }}>Between 16:00 and 21:00. {fee ? `Delivery fee ${money(fee)}.` : "Free delivery on this order."}</span>
               </div>
             </div>

@@ -58,6 +58,8 @@ model DeliveryArea {
   freeOverCents Int
   minOrderCents Int
   estimatedDays Int     @default(1)
+  cutoffHour    Int     @default(20) // orders at or after this hour (Berlin time) count as the next day's
+  excludedPostcodes String[] @default([]) // postcodes inside the range that are not served (e.g. outside Berlin)
   active        Boolean @default(true)
 }
 

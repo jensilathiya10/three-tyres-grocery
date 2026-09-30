@@ -19,7 +19,7 @@ export default async function DeliveryPage() {
           <AreaForm key={a.id} area={{
             id: a.id, name: a.name, postcodeFrom: String(a.postcodeFrom), postcodeTo: String(a.postcodeTo),
             fee: (a.feeCents / 100).toFixed(2), freeOver: (a.freeOverCents / 100).toFixed(2), minOrder: (a.minOrderCents / 100).toFixed(2),
-            estimatedDays: String(a.estimatedDays), active: a.active,
+            estimatedDays: String(a.estimatedDays), cutoffHour: String(a.cutoffHour), excludedPostcodes: a.excludedPostcodes.join(", "), active: a.active,
           }} />
         ))}
         <AreaForm area={null} />

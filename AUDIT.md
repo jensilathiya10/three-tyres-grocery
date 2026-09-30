@@ -375,8 +375,8 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] N-01 New-order alert to shop owner
 - [ ] N-02 Order confirmation email to customer
 - [ ] P-03 Card terminal for pay-on-delivery
-- [ ] D-01 Exact Berlin postcode list
-- [ ] D-02 Order cut-off time
+- [ ] D-01 Exact Berlin postcode list — tool done: admin can exclude postcodes inside the range; customers get a clear message. **You:** enter the non-Berlin postcodes (please verify, e.g. 12529 Schönefeld)
+- [x] D-02 Order cut-off time — done: 20:00 Berlin by default, editable per area in admin; shown on product and delivery pages
 - [ ] U-02 Real-phone layout test
 - [ ] C-01 Real catalogue, prices and stock
 - [x] Q-01 Commit — done on branch launch-prep
@@ -421,7 +421,7 @@ Copy items into your task tracker in this order. IDs link back to the sections a
 - [ ] F-05 Database connection pooling (at deploy)
 - [ ] Q-04 Update README
 - [ ] T-01 End-to-end tests
-- [ ] T-02 Unit tests for rules
+- [ ] T-02 Unit tests for rules — started: 14 tests for delivery dates, cut-off, Sundays, time zones, postcodes and fees (`npm test`)
 - [ ] T-04 Continuous integration
 - [ ] Z-07 Error monitoring
 - [ ] Z-08 Uptime monitoring

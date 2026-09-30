@@ -26,7 +26,7 @@ export default async function HomePage() {
   ]);
   const hero = HERO_SLUGS.map((s) => heroAll.find((p) => p.slug === s)).filter((p) => !!p);
   const shownDeals = deals.filter((p) => p.stock > 0).slice(0, 4);
-  const tomorrow = deliveryDate(main?.estimatedDays ?? 1).toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
+  const tomorrow = deliveryDate(main ?? undefined).toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
 
   return (
     <>
