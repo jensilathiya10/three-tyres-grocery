@@ -61,7 +61,9 @@ export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
             {entries.map((e) => <Link key={e.key} href={e.href} aria-current={e.on ? "page" : undefined}>{e.short}</Link>)}
           </div>
           {category?.blurb && !deals && <p className="count" style={{ color: "var(--fg)" }}>{category.blurb}</p>}
-          <p className="count">{products.length} product{products.length === 1 ? "" : "s"}{q ? ` for “${q}”` : ""}</p>
+          <p className="count">
+            {products.length} product{products.length === 1 ? "" : "s"}{q ? ` for “${q}”` : ""} · Prices incl. VAT, plus <Link className="link" href="/info#delivery" style={{ fontWeight: 600 }}>delivery</Link>
+          </p>
           {products.length ? (
             <ProductGrid products={products} />
           ) : (

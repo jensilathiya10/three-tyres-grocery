@@ -56,7 +56,12 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
             </div>
             <div className="legal">
               <span>© {new Date().getFullYear()} Three Tyres Grocery, Berlin</span>
-              <span>Impressum · Datenschutz · AGB (add before launch)</span>
+              <nav aria-label="Legal" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                <Link href="/impressum">Impressum</Link>
+                <Link href="/datenschutz">Datenschutz (Privacy)</Link>
+                <Link href="/agb">AGB (Terms)</Link>
+                <Link href="/widerruf">Widerruf (Withdrawal)</Link>
+              </nav>
             </div>
           </div>
         </footer>

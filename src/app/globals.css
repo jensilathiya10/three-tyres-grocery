@@ -479,3 +479,15 @@ a.pname:hover { color: var(--green); }
 .login form { width: min(380px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 28px; display: grid; gap: 16px; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Legal pages */
+.legal-text { max-width: 72ch; padding-block: 8px 56px; }
+.legal-text h1 { font-size: clamp(28px, 4vw, 38px); font-weight: 800; margin-block: 16px 20px; }
+.legal-text h2 { font-size: 21px; margin-block: 28px 10px; }
+.legal-text h3 { font-size: 17px; margin-block: 20px 8px; }
+.legal-text p, .legal-text li { color: var(--fg); line-height: 1.65; }
+.legal-text p { margin-block: 0 12px; }
+.legal-text ul, .legal-text ol { padding-left: 22px; margin-block: 0 12px; }
+.legal-text a { color: var(--green); text-decoration: underline; }
+.legal-text mark.missing { background: var(--danger-soft); color: var(--danger); font-weight: 700; padding: 0 4px; border-radius: 4px; }
+.legal-text blockquote { border-left: 3px solid var(--line); margin: 0 0 12px; padding: 4px 0 4px 16px; color: var(--muted); }

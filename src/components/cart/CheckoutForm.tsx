@@ -149,9 +149,11 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
 
         {botCheckSiteKey && <Turnstile siteKey={botCheckSiteKey} />}
         <button className="btn btn-primary btn-block" type="submit" disabled={pending} style={{ paddingBlock: 16, fontSize: 16 }}>
-          {pending ? "Placing your order…" : <>Place order · <span className="num">{money(sub + fee)}</span></>}
+          {pending ? "Placing your order…" : <>Order and pay · <span className="num">{money(sub + fee)}</span></>}
         </button>
-        <p className="muted" style={{ fontSize: 13, marginTop: 10, textAlign: "center" }}>By placing your order you agree to our terms of sale.</p>
+        <p className="muted" style={{ fontSize: 13, marginTop: 10, textAlign: "center" }}>
+          By placing your order you agree to our <Link className="link" href="/agb" target="_blank">terms of sale</Link>. Read about your <Link className="link" href="/widerruf" target="_blank">right of withdrawal</Link> and how we handle your data in our <Link className="link" href="/datenschutz" target="_blank">privacy policy</Link>.
+        </p>
       </form>
 
       <aside className="summary">
@@ -168,6 +170,7 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
         <div className="row" style={{ borderTop: "1px solid var(--line)", paddingTop: 12 }}><span>Subtotal</span><span>{money(sub)}</span></div>
         <div className="row"><span>Delivery</span><span>{fee ? money(fee) : "Free"}</span></div>
         <div className="row total"><span>Total</span><span>{money(sub + fee)}</span></div>
+        <p className="hint" style={{ marginTop: -6 }}>Prices include VAT.</p>
       </aside>
     </div>
   );

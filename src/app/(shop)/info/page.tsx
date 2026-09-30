@@ -46,7 +46,7 @@ export default async function InfoPage() {
           <h2>Contact</h2>
           <dl>
             <dt>WhatsApp</dt><dd><a className="link" href={waShopLink()} target="_blank" rel="noopener"><Icon name="chat" />Message us</a></dd>
-            <dt>Email</dt><dd>{process.env.NEXT_PUBLIC_CONTACT_EMAIL || "Add NEXT_PUBLIC_CONTACT_EMAIL to .env"}</dd>
+            {process.env.NEXT_PUBLIC_CONTACT_EMAIL && <><dt>Email</dt><dd style={{ userSelect: "all" }}>{process.env.NEXT_PUBLIC_CONTACT_EMAIL}</dd></>}
           </dl>
         </div>
       </div>

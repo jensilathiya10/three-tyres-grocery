@@ -81,6 +81,7 @@ export function CartView({ area }: { area: AreaRule | null }) {
           <div className="row"><span>Delivery</span><span>{fee ? money(fee) : "Free"}</span></div>
           {area && <FreeDeliveryProgress sub={sub} area={area} />}
           <div className="row total"><span>Total</span><span>{money(sub + fee)}</span></div>
+          <p className="hint" style={{ marginTop: -6 }}>Prices include VAT.</p>
           {short > 0 && <p className="warn">The minimum order is {money(area!.minOrderCents)}. Add <b className="num">{money(short)}</b> more to check out.</p>}
           <Link className="btn btn-primary btn-block" href="/checkout" aria-disabled={blocked} tabIndex={blocked ? -1 : undefined}>
             Checkout <Icon name="arrow" />

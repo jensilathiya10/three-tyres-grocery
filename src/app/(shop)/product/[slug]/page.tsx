@@ -50,6 +50,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             <span className="price">{money(p.priceCents)}</span>
             {p.wasCents && <><span className="was">{money(p.wasCents)}</span><span className="save">Save {money(p.wasCents - p.priceCents)}</span></>}
           </div>
+          <p className="hint" style={{ marginTop: 6 }}>Incl. VAT, plus <Link className="link" href="/info#delivery" style={{ fontWeight: 600 }}>delivery</Link></p>
           {p.stock <= 0 ? <p className="stock out">Out of stock. Ask us on WhatsApp when it&apos;s back.</p>
             : p.stock <= 5 ? <p className="stock low">Only {p.stock} left in stock</p>
             : <p className="stock">In stock</p>}

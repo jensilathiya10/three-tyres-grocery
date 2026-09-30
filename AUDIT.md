@@ -58,7 +58,7 @@ Tags: **[BUG]** = something that works wrong today. **[MISSING]** = not built ye
 | ID | Item | Why it matters | Where | Pri | Size |
 | --- | --- | --- | --- | --- | --- |
 | L-01 | **[MISSING] Impressum page** (name, address, contact, VAT ID, register entry if any). | Required by § 5 DDG for every business website; missing Impressum is a common reason for warning letters (Abmahnungen). | New page `/impressum`, footer link | P0 | S |
-| L-02 | **[MISSING] Datenschutzerklärung (privacy policy).** Must cover: order data, the checkout details saved in the browser, WhatsApp links, Google Fonts (see T-12), hosting provider, database host, how long data is kept, customer rights. | GDPR Art. 13. | New page `/datenschutz` | P0 | S |
+| L-02 | **[MISSING] Datenschutzerklärung (privacy policy).** Must cover: order data, the checkout details saved in the browser, WhatsApp links, hosting provider, database host, how long data is kept, customer rights. | GDPR Art. 13. | New page `/datenschutz` | P0 | S |
 | L-03 | **[MISSING] AGB (terms of sale)** and a link to them at checkout. The checkout currently says "you agree to our terms of sale" but there are no terms. | Needed to define delivery, payment, cancellations, liability. | New page `/agb`; `CheckoutForm.tsx` line under the button | P0 | S |
 | L-04 | **[MISSING] Widerrufsbelehrung** (withdrawal information) and model withdrawal form. Consumers have a 14-day right of withdrawal for distance sales; perishable goods and opened sealed food are exceptions, but you must still explain this clearly. | § 312g BGB, Art. 246a EGBGB. | New page `/widerruf`, link at checkout and in confirmation | P0 | S |
 | L-05 | **[BUG] Order button text.** "Place order · €X" is not enough in Germany; the button must clearly say the order costs money, e.g. **"Zahlungspflichtig bestellen"** / "Order and pay". | § 312j (3) BGB. Without it, the contract may not be valid. | `CheckoutForm.tsx` ~line 150 | P0 | S |
@@ -355,16 +355,16 @@ O-04 edit orders · O-05 order prefix · O-06 dashboard wording · D-03 holidays
 Copy items into your task tracker in this order. IDs link back to the sections above.
 
 ### P0 — before launch (39)
-- [ ] L-01 Impressum page
-- [ ] L-02 Privacy policy (Datenschutzerklärung)
-- [ ] L-03 Terms of sale (AGB) + link at checkout
-- [ ] L-04 Withdrawal information (Widerrufsbelehrung)
-- [ ] L-05 Order button "Zahlungspflichtig bestellen" / "Order and pay"
+- [ ] L-01 Impressum page — page built at /impressum from BUSINESS_… settings in .env; **you:** fill in your details
+- [ ] L-02 Privacy policy (Datenschutzerklärung) — German/English draft at /datenschutz (content/legal/datenschutz.md) describing what the shop really does; **you:** fill gaps, get it checked
+- [ ] L-03 Terms of sale (AGB) + link at checkout — draft at /agb, linked under the order button; **you:** decide the open points, get it checked
+- [ ] L-04 Withdrawal information (Widerrufsbelehrung) — page at /widerruf with the details to insert; **you:** paste the official model text + form
+- [x] L-05 Order button "Zahlungspflichtig bestellen" / "Order and pay" — done: button reads "Order and pay · €…"
 - [ ] L-06 Unit prices (€/kg, €/l)
-- [ ] L-07 "incl. VAT, plus delivery" near prices
+- [x] L-07 "incl. VAT, plus delivery" near prices — done on product page, shop list, cart and checkout
 - [ ] L-08 Full food information (ingredients, allergens, nutrition, storage, operator)
-- [ ] L-10 Remove placeholder texts; set contact email
-- [ ] L-11 Legal texts in German
+- [x] L-10 Remove placeholder texts; set contact email — done: footer links to the legal pages; contact email row hidden until set. **You:** set NEXT_PUBLIC_CONTACT_EMAIL
+- [ ] L-11 Legal texts in German — drafts are German with English summaries; final wording pending review
 - [x] S-01 Change default admin password — done: random password in .env; production refuses weak passwords
 - [x] S-02 Stop fake orders (rate limit + bot check) — done: 5/hour per IP, 4 per 6 h per phone; Turnstile when keys are set
 - [x] S-03 Login rate limit / lockout — done: 5 wrong tries → 15 min lockout per IP
