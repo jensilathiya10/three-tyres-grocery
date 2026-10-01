@@ -71,6 +71,12 @@ model DeliveryArea {
   active        Boolean @default(true)
 }
 
+// Days the shop doesn't deliver, on top of Sundays and Berlin public holidays (which are worked out in code)
+model ClosedDay {
+  date   DateTime @id @db.Date
+  reason String   @default("")
+}
+
 enum OrderStatus {
   AWAITING_PAYMENT // online payment started, not finished yet; stock is reserved
   NEW

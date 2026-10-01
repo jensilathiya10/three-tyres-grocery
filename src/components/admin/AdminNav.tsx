@@ -8,7 +8,7 @@ const LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "/admin", label: "Dashboard", icon: "chart" },
   { href: "/admin/orders", label: "Orders", icon: "list" },
   { href: "/admin/products", label: "Products", icon: "box" },
-  { href: "/admin/delivery", label: "Delivery areas", icon: "truck" },
+  { href: "/admin/delivery", label: "Delivery", icon: "truck" },
 ];
 
 export function AdminNav() {

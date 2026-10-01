@@ -4,7 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { createAdminOrder, type AdminOrderState } from "@/app/actions/admin-orders";
 import { Stepper } from "@/components/cart/BuyControl";
 import { Icon } from "@/components/Icon";
-import { money } from "@/lib/format";
+import { money, noDeliveryReason } from "@/lib/format";
 import { deliveryFee, findArea, type AreaRule } from "@/lib/postcode";
 
 export type PickableProduct = { id: string; name: string; brand: string; size: string; priceCents: number; stock: number };
@@ -14,6 +14,7 @@ export function AdminOrderForm({ products, areas, defaultDate }: { products: Pic
   const [lines, setLines] = useState<{ id: string; qty: number }[]>([]);
   const [search, setSearch] = useState("");
   const [postcode, setPostcode] = useState("");
+  const [date, setDate] = useState(defaultDate);
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 
   const q = search.trim().toLowerCase();
@@ -32,6 +33,7 @@ export function AdminOrderForm({ products, areas, defaultDate }: { products: Pic
   const area = pc?.ok ? pc.area : null;
   const fee = area ? deliveryFee(sub, area) : 0;
   const fe = state.fieldErrors ?? {};
+  const dayOff = /^\d{4}-\d{2}-\d{2}$/.test(date) ? noDeliveryReason(new Date(date + "T00:00:00Z"), areas[0]?.closedDays) : null;
 
   const field = (name: string, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <div className="field">
@@ -119,7 +121,8 @@ export function AdminOrderForm({ products, areas, defaultDate }: { products: Pic
       <div style={{ display: "grid", gap: 20 }}>
         <section className="card-panel" style={{ display: "grid", gap: 12 }}>
           <h2>Delivery and payment</h2>
-          {field("deliveryDate", "Delivery date", { type: "date", defaultValue: defaultDate, min: new Date().toISOString().slice(0, 10) })}
+          {field("deliveryDate", "Delivery date", { type: "date", defaultValue: defaultDate, min: new Date().toISOString().slice(0, 10), onChange: (e) => setDate(e.target.value) })}
+          {dayOff && <p className="warn">That day is a day without delivery ({dayOff}). You can still save it if you&apos;ve agreed it with the customer.</p>}
           <div className="pay">
             <label style={{ padding: "8px 12px" }}><input type="radio" name="payment" value="ON_DELIVERY" defaultChecked /><b>Pay on delivery</b><small>Card or cash to the driver</small></label>
             <label style={{ padding: "8px 12px" }}><input type="radio" name="payment" value="WHATSAPP" /><b>Arranged on WhatsApp</b><small>E.g. bank transfer agreed in chat</small></label>

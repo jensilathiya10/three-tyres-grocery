@@ -11,6 +11,8 @@ export type AreaRule = {
   estimatedDays: number;
   cutoffHour: number;
   excludedPostcodes: string[];
+  /** The shop's upcoming days off (ISO dates); the same list for every area. */
+  closedDays?: string[];
 };
 
 export type PostcodeResult = { ok: true; area: AreaRule } | { ok: false; message: string };

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/Icon";
 import { PostcodeChecker } from "@/components/shop/PostcodeChecker";
 import { getDeliveryAreas } from "@/lib/catalog";
-import { money } from "@/lib/format";
+import { formatDay, money, upcomingDaysOff } from "@/lib/format";
 import { waShopLink } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +11,7 @@ export const metadata: Metadata = { title: "How it works & delivery" };
 
 export default async function InfoPage() {
   const areas = await getDeliveryAreas();
+  const daysOff = upcomingDaysOff(areas[0]?.closedDays);
   return (
     <div className="wrap">
       <nav className="crumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span>How it works</span></nav>
@@ -26,13 +27,20 @@ export default async function InfoPage() {
           {areas.map((a) => (
             <dl key={a.id} style={{ marginBottom: 12 }}>
               <dt>Area</dt><dd>{a.name}, postcodes {a.postcodeFrom}–{a.postcodeTo}</dd>
-              <dt>When</dt><dd>{a.estimatedDays === 1 ? "Next day" : `In ${a.estimatedDays} days`}, 16:00–21:00 (Monday to Saturday)</dd>
+              <dt>When</dt><dd>{a.estimatedDays === 1 ? "Next day" : `In ${a.estimatedDays} days`}, 16:00–21:00, Monday to Saturday except public holidays</dd>
               <dt>Order by</dt><dd>{a.cutoffHour}:00. Later orders count as the next day&apos;s.</dd>
               <dt>Delivery fee</dt><dd>{money(a.feeCents)}</dd>
               <dt>Free delivery</dt><dd>On orders over {money(a.freeOverCents)}</dd>
               <dt>Minimum order</dt><dd>{money(a.minOrderCents)}</dd>
             </dl>
           ))}
+          {daysOff.length > 0 && (
+            <p style={{ margin: "4px 0 16px" }}>
+              <b>No deliveries on:</b>{" "}
+              {daysOff.map((o) => `${formatDay(o.date)} (${o.reason === "Shop closed" ? "we're closed" : o.reason})`).join(", ")}.
+              {" "}Orders placed before then arrive on the next delivery day.
+            </p>
+          )}
           <PostcodeChecker areas={areas} label="Check your postcode" wide />
         </div>
         <div className="panel faq">

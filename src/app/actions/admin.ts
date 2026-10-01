@@ -13,6 +13,7 @@ import { cancelAndRestock, expireSession } from "@/lib/orders";
 import { stripe } from "@/lib/stripe";
 import { clientIp, hit, peek, reset, waitText } from "@/lib/rate-limit";
 import { NET_UNITS } from "@/lib/unit-price";
+import { berlinToday } from "@/lib/format";
 
 /* ---------- Session ---------- */
 
@@ -236,4 +237,30 @@ export async function saveArea(_prev: { error?: string; ok?: boolean }, formData
   else await db.deliveryArea.create({ data });
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+/* ---------- Days off ---------- */
+
+const closedDaySchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date."),
+  reason: z.string().trim().max(80).default(""),
+});
+
+export async function addClosedDay(_prev: { error?: string; ok?: boolean }, formData: FormData): Promise<{ error?: string; ok?: boolean }> {
+  await requireAdmin();
+  const parsed = closedDaySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const date = new Date(parsed.data.date + "T00:00:00Z");
+  if (date < berlinToday()) return { error: "That date is in the past." };
+  await db.closedDay.upsert({ where: { date }, create: { date, reason: parsed.data.reason }, update: { reason: parsed.data.reason } });
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function removeClosedDay(formData: FormData) {
+  await requireAdmin();
+  const v = String(formData.get("date") ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+  await db.closedDay.deleteMany({ where: { date: new Date(v + "T00:00:00Z") } });
+  revalidatePath("/", "layout");
 }

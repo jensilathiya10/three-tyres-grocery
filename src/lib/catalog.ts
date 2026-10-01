@@ -2,6 +2,8 @@ import "server-only";
 import { db } from "./db";
 import type { Prisma } from "@/generated/prisma/client";
 import type { AreaRule } from "./postcode";
+import { berlinToday } from "./format";
+import { isoDay } from "./holidays";
 
 /** The product fields the storefront needs. Plain data, safe to pass to client components. */
 export type ProductView = {
@@ -97,11 +99,21 @@ export async function getProductsByIds(ids: string[]) {
 }
 
 export async function getDeliveryAreas(): Promise<AreaRule[]> {
-  return db.deliveryArea.findMany({
-    where: { active: true },
-    orderBy: { postcodeFrom: "asc" },
-    select: { id: true, name: true, postcodeFrom: true, postcodeTo: true, feeCents: true, freeOverCents: true, minOrderCents: true, estimatedDays: true, cutoffHour: true, excludedPostcodes: true },
-  });
+  const [areas, closed] = await Promise.all([
+    db.deliveryArea.findMany({
+      where: { active: true },
+      orderBy: { postcodeFrom: "asc" },
+      select: { id: true, name: true, postcodeFrom: true, postcodeTo: true, feeCents: true, freeOverCents: true, minOrderCents: true, estimatedDays: true, cutoffHour: true, excludedPostcodes: true },
+    }),
+    getClosedDays(),
+  ]);
+  const closedDays = closed.map((c) => isoDay(c.date));
+  return areas.map((a) => ({ ...a, closedDays }));
+}
+
+/** The shop's days off from today on. */
+export function getClosedDays() {
+  return db.closedDay.findMany({ where: { date: { gte: berlinToday() } }, orderBy: { date: "asc" } });
 }
 
 /** The main area drives site-wide copy like "free delivery over €49". */
