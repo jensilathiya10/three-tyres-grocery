@@ -504,3 +504,5 @@ a.pname:hover { color: var(--green); }
 .nf-cats a:hover { border-color: var(--green); color: var(--green); }
 .nf-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
 .nf-help { font-size: 14px; }
+.wa-copy { margin-top: 22px; display: grid; gap: 8px; text-align: center; }
+.wa-copy .muted { font-size: 13px; }

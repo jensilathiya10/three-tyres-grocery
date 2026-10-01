@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { syncPayment } from "@/lib/orders";
 import { formatDay, money, orderNo } from "@/lib/format";
 import { waShopLink } from "@/lib/whatsapp";
+import { siteBase } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your order", robots: { index: false } };
@@ -35,7 +36,23 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
 
   const no = orderNo(o.number);
   const address = `${o.street}${o.apartment ? ", " + o.apartment : ""}, ${o.postcode} ${o.city}`;
-  const wa = `Hi! I just placed order ${no} with Three Tyres Grocery.\n\n${o.items.map((i) => `${i.quantity} × ${i.name} (${i.size})`).join("\n")}\n\nTotal: ${money(o.totalCents)}\nName: ${o.customerName}\nAddress: ${address}\nPhone: ${o.phone}\n\nHow would you like me to pay?`;
+  const payByWhatsApp = o.paymentMethod === "WHATSAPP";
+  // Free alternative to sending WhatsApp messages ourselves: the customer sends their order to the shop,
+  // which leaves a copy in their own WhatsApp
+  const wa = [
+    `Hi! I just placed order ${no} with Three Tyres Grocery.`,
+    "",
+    ...o.items.map((i) => `${i.quantity} × ${i.name} (${i.size})`),
+    "",
+    `Total: ${money(o.totalCents)} · ${payByWhatsApp ? "payment via WhatsApp" : "pay on delivery"}`,
+    `Delivery: ${formatDay(o.deliveryDate)}, 16:00–21:00`,
+    `Name: ${o.customerName}`,
+    `Address: ${address}`,
+    `Phone: ${o.phone}`,
+    `Order: ${await siteBase()}/order/${o.id}`,
+    ...(payByWhatsApp ? ["", "How would you like me to pay?"] : []),
+  ].join("\n");
+  const showWa = ["NEW", "CONFIRMED", "PREPARING"].includes(o.status);
 
   return (
     <div className="wrap">
@@ -51,10 +68,17 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
               : `Thank you, ${o.customerName.split(" ")[0]}. ${paidOnline ? "Your payment went through. " : ""}Keep this page to check your order.`}
           </p>
         </div>
-        {o.paymentMethod === "WHATSAPP" && ["NEW", "CONFIRMED"].includes(o.status) && (
-          <a className="btn btn-primary btn-block" style={{ marginTop: 22 }} href={waShopLink(wa)} target="_blank" rel="noopener">
-            <Icon name="chat" />Arrange payment on WhatsApp
-          </a>
+        {showWa && (
+          <div className="wa-copy">
+            <a className="btn btn-primary btn-block" href={waShopLink(wa)} target="_blank" rel="noopener">
+              <Icon name="chat" />{payByWhatsApp ? "Arrange payment on WhatsApp" : "Get my order on WhatsApp"}
+            </a>
+            <p className="muted">
+              {payByWhatsApp
+                ? "Opens WhatsApp with your order written out. Press send and we'll sort out payment with you there."
+                : "Opens WhatsApp with your order written out. Press send to keep a copy in your chat with us."}
+            </p>
+          </div>
         )}
         <div className="receipt">
           <div className="row">
