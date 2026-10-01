@@ -14,7 +14,7 @@ Anbieter und Vertragspartner: {{name}}, {{address}}, E-Mail: {{email}}, Telefon:
 
 1. Die Darstellung der Produkte im Shop ist kein verbindliches Angebot, sondern eine Aufforderung zur Bestellung.
 2. Mit Klick auf „Order and pay“ (zahlungspflichtig bestellen) geben Sie ein verbindliches Angebot zum Kauf der Waren im Warenkorb ab.
-3. Der Vertrag kommt zustande, wenn wir Ihre Bestellung bestätigen (per E-Mail, WhatsApp oder durch Auslieferung der Ware). **[Prüfen und an den tatsächlichen Ablauf anpassen.]**
+3. Der Vertrag kommt zustande, sobald wir Ihre Bestellung annehmen. Die Annahme erfolgt unmittelbar nach dem Absenden durch die Bestellbestätigung auf der Website und, wenn Sie eine E-Mail-Adresse angegeben haben, per E-Mail. **[Von Rechtsberatung prüfen lassen.]**
 4. Vertragssprache ist Deutsch; Informationen stehen zusätzlich auf Englisch zur Verfügung.
 
 ## § 3 Preise und Lieferkosten
@@ -53,7 +53,7 @@ Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Bei Verbrauchern gil
 ## English summary
 
 - The seller is {{name}}, {{address}}.
-- Pressing **"Order and pay"** is a binding order. The contract is made when we confirm your order or deliver it.
+- Pressing **"Order and pay"** is a binding order. The contract is made straight away: the confirmation page (and email) you get after ordering is our acceptance.
 - Prices include VAT; delivery costs are added as shown on the delivery page and in your cart.
 - We deliver only to the Berlin postcodes listed on the site. Delivery days and times are estimates.
 - Pay the driver by cash or card, or arrange payment with us on WhatsApp.

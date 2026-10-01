@@ -93,7 +93,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     }
   }
 
-  // Free stock held by orders nobody confirmed
+  // Free stock still held by old orders nobody confirmed
   await releaseStaleOrders().catch((e) => console.error("releaseStaleOrders", e));
 
   let orderId: string;
@@ -102,6 +102,8 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
       wanted, area,
       customer: { name: f.name, phone: f.phone, email: f.email, street: f.street, apartment: f.apartment, postcode: raw.postcode.trim(), note: f.note },
       paymentMethod: f.payment,
+      // Website orders are accepted straight away: no confirmation step, nothing to auto-cancel
+      status: "CONFIRMED",
       deliveryDate: deliveryDate(area),
       enforceMinOrder: true,
       fixHint: "Update your cart and try again.",

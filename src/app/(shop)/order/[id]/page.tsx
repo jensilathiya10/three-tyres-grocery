@@ -35,7 +35,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
 
   const no = orderNo(o.number);
   const address = `${o.street}${o.apartment ? ", " + o.apartment : ""}, ${o.postcode} ${o.city}`;
-  const wa = `Hi! I just placed order ${no} with Three Tyres Grocery.\n\n${o.items.map((i) => `${i.quantity} × ${i.name} (${i.size})`).join("\n")}\n\nTotal: ${money(o.totalCents)}\nName: ${o.customerName}\nAddress: ${address}\nPhone: ${o.phone}`;
+  const wa = `Hi! I just placed order ${no} with Three Tyres Grocery.\n\n${o.items.map((i) => `${i.quantity} × ${i.name} (${i.size})`).join("\n")}\n\nTotal: ${money(o.totalCents)}\nName: ${o.customerName}\nAddress: ${address}\nPhone: ${o.phone}\n\nHow would you like me to pay?`;
 
   return (
     <div className="wrap">
@@ -51,9 +51,9 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
               : `Thank you, ${o.customerName.split(" ")[0]}. ${paidOnline ? "Your payment went through. " : ""}Keep this page to check your order.`}
           </p>
         </div>
-        {o.paymentMethod === "WHATSAPP" && o.status === "NEW" && (
+        {o.paymentMethod === "WHATSAPP" && ["NEW", "CONFIRMED"].includes(o.status) && (
           <a className="btn btn-primary btn-block" style={{ marginTop: 22 }} href={waShopLink(wa)} target="_blank" rel="noopener">
-            <Icon name="chat" />Send order on WhatsApp to confirm
+            <Icon name="chat" />Arrange payment on WhatsApp
           </a>
         )}
         <div className="receipt">
@@ -77,7 +77,7 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
               : paidOnline ? "Paid online."
               : processing ? "Payment in progress."
               : o.paymentMethod === "ON_DELIVERY" ? "Pay the driver by card or cash."
-              : "We'll confirm payment with you on WhatsApp."}
+              : "Pay as arranged with us on WhatsApp."}
           </p>
         </div>
         <div className="facts">

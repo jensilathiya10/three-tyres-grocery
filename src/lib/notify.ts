@@ -58,7 +58,7 @@ async function sendWhatsApp(text: string) {
 
 const PAYMENT_TEXT: Record<string, string> = {
   ON_DELIVERY: "Pay the driver by card or cash on delivery.",
-  WHATSAPP: "We'll confirm the order and payment with you on WhatsApp.",
+  WHATSAPP: "We'll arrange payment with you on WhatsApp.",
   ONLINE: "Paid online.",
 };
 
@@ -136,7 +136,7 @@ function ownerAlert(o: LoadedOrder, base: string) {
     `${o.customerName} · ${o.phone}`,
     `${o.street}${o.apartment ? ", " + o.apartment : ""}, ${o.postcode}`,
     `Map: https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${o.street}, ${o.postcode} ${o.city}`)}`,
-    `Delivery ${formatDay(o.deliveryDate)} · ${o.paymentMethod === "WHATSAPP" ? "confirm on WhatsApp" : "pay on delivery"}`,
+    `Delivery ${formatDay(o.deliveryDate)} · ${o.paymentMethod === "WHATSAPP" ? "payment via WhatsApp" : "pay on delivery"}`,
     ...orderLines(o).map((l) => `• ${l.label}`),
     o.note ? `Note: ${o.note}` : "",
     `${base}/admin/orders/${o.id}`,

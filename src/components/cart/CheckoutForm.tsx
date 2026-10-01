@@ -153,8 +153,8 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
             </label>
             <label>
               <input type="radio" name="payment" value="WHATSAPP" defaultChecked={values.payment === "WHATSAPP"} />
-              <b>Confirm on WhatsApp</b>
-              <small>We message you to confirm the order and how you&apos;d like to pay.</small>
+              <b>Arrange payment on WhatsApp</b>
+              <small>E.g. bank transfer or PayPal. Your order is placed now; we sort out payment with you in WhatsApp.</small>
             </label>
           </div>
           {state.fieldErrors?.payment && <p className="err" style={{ marginTop: 8 }}>{state.fieldErrors.payment}</p>}

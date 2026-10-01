@@ -18,7 +18,7 @@ export default async function InfoPage() {
       <h1 className="page-h">How Three Tyres Grocery works</h1>
       <div className="steps" style={{ marginBottom: 44 }}>
         <div className="step"><span className="n">1</span><h3>Shop online</h3><p>Browse by category or search. Add what you need to your cart. No account needed.</p></div>
-        <div className="step"><span className="n">2</span><h3>Place your order</h3><p>Enter your Berlin address and pay on delivery, or confirm the order with us on WhatsApp.</p></div>
+        <div className="step"><span className="n">2</span><h3>Place your order</h3><p>Enter your Berlin address and order. Your order is confirmed straight away; pay on delivery or arrange payment on WhatsApp.</p></div>
         <div className="step"><span className="n">3</span><h3>Get it delivered</h3><p>We pack everything and deliver it to your door the next evening.</p></div>
       </div>
       <div className="info-grid">
