@@ -1,0 +1,10 @@
+# Never upload local secrets or tooling; Vercel has its own settings
+.env
+.env.*
+!.env.example
+.agents
+.claude
+.windsurf
+skills-lock.json
+tsconfig.tsbuildinfo
+AUDIT.md

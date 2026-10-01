@@ -2,8 +2,9 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { parseSize } from "../src/lib/unit-price";
+import { pgConfig } from "../src/lib/database-url";
 
-const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+const db = new PrismaClient({ adapter: new PrismaPg(pgConfig("direct")) });
 
 // Sample catalogue. Replace names, prices, stock and label info with your real products.
 const CATEGORIES = [
@@ -69,6 +70,13 @@ PRODUCTS.push({
 const cents = (n: number) => Math.round(n * 100);
 
 async function main() {
+  // Only fill an empty shop: re-running would overwrite real prices and stock with these samples.
+  // Runs on every Vercel deploy, so this guard is what keeps live data safe. SEED_FORCE=1 overrides it.
+  const existing = await db.product.count();
+  if (existing > 0 && process.env.SEED_FORCE !== "1") {
+    console.log(`Seed skipped: the shop already has ${existing} products.`);
+    return;
+  }
   for (const [i, c] of CATEGORIES.entries()) {
     await db.category.upsert({ where: { slug: c.slug }, update: { ...c, sort: i }, create: { ...c, sort: i } });
   }
