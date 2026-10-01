@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "prisma migrate deploy && prisma db seed && next build",
+  "buildCommand": "prisma migrate deploy && prisma db seed && tsx prisma/add-catalogue.ts && next build",
   "regions": ["fra1"],
   "crons": [{ "path": "/api/cron/cleanup", "schedule": "0 3 * * *" }]
 }
