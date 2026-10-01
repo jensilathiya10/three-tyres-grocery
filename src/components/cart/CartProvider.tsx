@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { ProductView } from "@/lib/catalog";
 import { refreshCart } from "@/app/actions/cart";
 
@@ -105,8 +105,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+const noSubscribe = () => () => {};
+// What the server renders: an empty cart that hasn't loaded yet
+const SERVER_VIEW = { ready: false, lines: [] as CartLine[], count: 0, subtotalCents: 0, qty: () => 0 };
+
 export function useCart() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useCart must be used inside CartProvider");
-  return ctx;
+  // False while this component hydrates. A Suspense boundary (like the header) can hydrate after the cart
+  // has loaded; without this it would render the saved cart where the server sent an empty one.
+  const hydrated = useSyncExternalStore(noSubscribe, () => true, () => false);
+  return hydrated ? ctx : { ...ctx, ...SERVER_VIEW };
 }
