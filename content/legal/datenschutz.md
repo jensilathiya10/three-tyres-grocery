@@ -38,8 +38,12 @@ Rechtsgrundlage: Ihre Einwilligung, § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a 
 ### Bestellung über WhatsApp
 Wenn Sie auf einen WhatsApp-Button klicken, öffnet sich WhatsApp (WhatsApp Ireland Ltd.) mit einer vorbereiteten Nachricht. Erst wenn Sie diese absenden, erhalten wir Ihre Nachricht und Telefonnummer. Für die Verarbeitung durch WhatsApp gilt deren Datenschutzerklärung.
 
+### Bestellbestätigung per E-Mail
+Nach Ihrer Bestellung schicken wir Ihnen eine Bestellbestätigung an die angegebene E-Mail-Adresse. Für den Versand nutzen wir Brevo (Sendinblue SAS, Paris, Frankreich) als Auftragsverarbeiter; dabei werden Ihre E-Mail-Adresse, Ihr Name und der Inhalt der Bestätigung an Brevo übermittelt. **[Vertrag zur Auftragsverarbeitung (AVV) im Brevo-Konto abschließen.]**
+Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Abwicklung Ihrer Bestellung). Werbung schicken wir auf diesem Weg nicht.
+
 ### Interne Benachrichtigung über neue Bestellungen
-Damit wir Ihre Bestellung schnell bearbeiten können, schicken wir uns selbst eine Benachrichtigung mit Name, Telefonnummer, Lieferadresse und den bestellten Produkten: per E-Mail an unser Postfach und per WhatsApp an das Telefon des Inhabers. Die WhatsApp-Nachricht wird über den Dienst CallMeBot (**[Anbieter und Sitz ergänzen]**) und WhatsApp (WhatsApp Ireland Ltd.) zugestellt. **[Absatz entfernen oder anpassen, wenn diese Benachrichtigung nicht genutzt wird.]**
+Damit wir Ihre Bestellung schnell bearbeiten können, schicken wir uns selbst eine Benachrichtigung mit Name, Telefonnummer, Lieferadresse und den bestellten Produkten: per E-Mail (über Brevo, siehe oben) an unser Postfach und per Telegram (Telegram FZ-LLC, Dubai, Vereinigte Arabische Emirate) an das Telefon des Inhabers. Telegram sitzt außerhalb der EU; die Übermittlung erfolgt zur Abwicklung Ihrer Bestellung. **[Von Rechtsberatung prüfen lassen.]**
 Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Abwicklung Ihrer Bestellung).
 
 ### Hosting und Server-Protokolle
@@ -66,6 +70,7 @@ Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, z
 - **Abuse protection:** we briefly count orders and sign-in attempts per IP address and phone number (at most 24 hours).
 - **Your browser:** your cart is saved on your device. Your contact and address details are saved there only if you tick "Remember my details" at checkout; untick it or press "Forget them" to delete them.
 - **WhatsApp:** buttons open WhatsApp with a ready-made message; we only receive it if you send it.
-- **Order alerts:** when you order, we send ourselves an alert with your name, phone, address and items by email and WhatsApp (delivered via CallMeBot and WhatsApp), so we can pack and deliver it quickly.
+- **Order emails:** your order confirmation is sent by Brevo (Paris, France) on our behalf. We don't use it for advertising.
+- **Order alerts:** when you order, we send ourselves an alert with your name, phone, address and items by email (via Brevo) and Telegram, so we can pack and deliver it quickly.
 - **No tracking:** no analytics or advertising cookies. Fonts are served from our own server.
 - **Your rights:** access, correction, deletion, restriction, portability and objection. Email us at {{email}}. You can also complain to the Berlin data protection authority.
