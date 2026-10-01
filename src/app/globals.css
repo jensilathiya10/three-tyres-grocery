@@ -156,7 +156,7 @@ svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-widt
 .oos .pack, .oos img { filter: grayscale(.9); opacity: .55; }
 
 /* Category tiles */
-.cats { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 12px; }
+.cats { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 12px; }
 .cat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 8px 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; font-weight: 700; font-size: 14px; transition: border-color .15s, transform .15s; }
 .cat:hover { border-color: var(--green); transform: translateY(-2px); }
 .cat .ic { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, var(--surface)); color: color-mix(in srgb, var(--c) 80%, var(--fg)); }

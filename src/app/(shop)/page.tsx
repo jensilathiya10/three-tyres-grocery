@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { Icon, isIconName } from "@/components/Icon";
+import { Icon, isIconName, type IconName } from "@/components/Icon";
 import { PackArt } from "@/components/PackArt";
 import { ProductGrid } from "@/components/shop/ProductCard";
 import { PostcodeChecker } from "@/components/shop/PostcodeChecker";
@@ -12,7 +12,8 @@ import { waShopLink } from "@/lib/whatsapp";
 export const dynamic = "force-dynamic";
 
 // The eight main categories from the brand brief; Frozen and Packs stay in the shop menu
-const HOME_CATEGORIES = ["rice", "atta", "dal", "masala", "snacks", "pickles", "tea", "sweets"];
+// Categories without their own icon borrow a close one
+const CATEGORY_ICON: Record<string, IconName> = { fresh: "basket", household: "home", cleaning: "basket", personal: "box", breakfast: "atta", basics: "masala" };
 const HERO_SLUGS = ["india-gate-basmati-5kg", "aashirvaad-atta-5kg", "toor-dal-1kg", "mdh-chana-masala", "mango-pickle-500g"];
 
 export default async function HomePage() {
@@ -61,9 +62,9 @@ export default async function HomePage() {
         </div>
         <div className="cats-scroll">
           <div className="cats">
-            {categories.filter((c) => HOME_CATEGORIES.includes(c.slug) && c._count.products > 0).map((c) => (
+            {categories.filter((c) => c._count.products > 0).map((c) => (
               <Link key={c.id} className="cat" href={`/shop?cat=${c.slug}`} style={{ "--c": c.color } as CSSProperties}>
-                <span className="ic"><Icon name={isIconName(c.slug) ? c.slug : "box"} /></span>
+                <span className="ic"><Icon name={isIconName(c.slug) ? c.slug : (CATEGORY_ICON[c.slug] ?? "box")} /></span>
                 {c.short}
               </Link>
             ))}
