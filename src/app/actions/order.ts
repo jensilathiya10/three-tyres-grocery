@@ -3,16 +3,16 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
+import { after } from "next/server";
 import { getDeliveryAreas } from "@/lib/catalog";
-import { deliveryFee, findArea } from "@/lib/postcode";
-import { deliveryDate, money } from "@/lib/format";
+import { findArea } from "@/lib/postcode";
+import { deliveryDate } from "@/lib/format";
 import { verifyBotCheck } from "@/lib/bot-check";
 import { clientIp, hit, waitText } from "@/lib/rate-limit";
 import { releaseStaleOrders } from "@/lib/orders";
 import { notifyNewOrder } from "@/lib/notify";
-import { headers } from "next/headers";
-import { after } from "next/server";
+import { createOrderWithStock, OrderError } from "@/lib/create-order";
+import { siteBase } from "@/lib/site";
 
 export type CheckoutState = {
   error?: string;
@@ -37,8 +37,6 @@ const itemsSchema = z
   .array(z.object({ id: z.string().min(1).max(40), qty: z.number().int().min(1).max(99) }))
   .min(1, "Your cart is empty.")
   .max(60);
-
-class CheckoutError extends Error {}
 
 // Generous for real customers (who may re-order after a mistake), tight enough to stop stock being locked up by spam
 const ORDERS_PER_IP_PER_HOUR = 5;
@@ -100,75 +98,23 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
 
   let orderId: string;
   try {
-    orderId = await db.$transaction(async (tx) => {
-      const products = await tx.product.findMany({ where: { id: { in: [...wanted.keys()] }, active: true } });
-      if (products.length !== wanted.size) throw new CheckoutError("Some products in your cart are no longer sold. Go back to your cart to update it.");
-
-      // Packs reserve the products inside them. Work out the total units needed per product,
-      // so a pack plus a separate bag of the same dal both count against that dal's stock.
-      const partSlugs = [...new Set(products.flatMap((p) => p.contents))];
-      const parts = partSlugs.length ? await tx.product.findMany({ where: { slug: { in: partSlugs }, active: true } }) : [];
-      const partBySlug = new Map(parts.map((p) => [p.slug, p]));
-      const bundleParts = new Map<string, string[]>(); // bundle id → part ids, one entry per unit in a pack
-      for (const p of products.filter((x) => x.contents.length)) {
-        const ids = p.contents.map((slug) => partBySlug.get(slug)?.id);
-        if (ids.some((id) => !id)) {
-          throw new CheckoutError(`${p.name} isn't available right now because something inside it is no longer sold. Remove it from your cart and try again.`);
-        }
-        bundleParts.set(p.id, ids as string[]);
-      }
-      const need = new Map<string, number>();
-      const add = (id: string, n: number) => need.set(id, (need.get(id) ?? 0) + n);
-      for (const p of products) {
-        const q = wanted.get(p.id)!;
-        add(p.id, q); // a pack's own stock works as a cap on how many packs are sold
-        for (const partId of bundleParts.get(p.id) ?? []) add(partId, q);
-      }
-      const byId = new Map([...products, ...parts].map((p) => [p.id, p]));
-
-      const short = [...need].filter(([id, n]) => byId.get(id)!.stock < n).map(([id]) => byId.get(id)!);
-      if (short.length) {
-        throw new CheckoutError(
-          `Not enough stock for: ${short.map((p) => (p.stock ? `${p.name} (only ${p.stock} left)` : `${p.name} (sold out)`)).join(", ")}. Update your cart and try again.`,
-        );
-      }
-
-      const subtotal = products.reduce((s, p) => s + p.priceCents * wanted.get(p.id)!, 0);
-      if (subtotal < area.minOrderCents) throw new CheckoutError(`The minimum order is ${money(area.minOrderCents)}.`);
-      const fee = deliveryFee(subtotal, area);
-
-      // Conditional decrement guards against two orders taking the last items at the same time
-      for (const [id, n] of need) {
-        const res = await tx.product.updateMany({ where: { id, stock: { gte: n } }, data: { stock: { decrement: n } } });
-        if (res.count !== 1) throw new CheckoutError(`${byId.get(id)!.name} just sold out. Update your cart and try again.`);
-      }
-
-      const order = await tx.order.create({
-        data: {
-          customerName: f.name, phone: f.phone, email: f.email, street: f.street, apartment: f.apartment,
-          postcode: raw.postcode.trim(), note: f.note, paymentMethod: f.payment,
-          subtotalCents: subtotal, deliveryFeeCents: fee, totalCents: subtotal + fee,
-          deliveryDate: deliveryDate(area),
-          items: {
-            create: products.map((p) => ({
-              productId: p.id, name: p.name, size: p.size, priceCents: p.priceCents, quantity: wanted.get(p.id)!,
-              bundlePartIds: bundleParts.get(p.id) ?? [],
-            })),
-          },
-        },
-      });
-      return order.id;
+    orderId = await createOrderWithStock({
+      wanted, area,
+      customer: { name: f.name, phone: f.phone, email: f.email, street: f.street, apartment: f.apartment, postcode: raw.postcode.trim(), note: f.note },
+      paymentMethod: f.payment,
+      deliveryDate: deliveryDate(area),
+      enforceMinOrder: true,
+      fixHint: "Update your cart and try again.",
     });
   } catch (e) {
-    if (e instanceof CheckoutError) return { error: e.message, values: raw };
+    if (e instanceof OrderError) return { error: e.message, values: raw };
     console.error("placeOrder failed", e);
     return { error: "We couldn't place your order. Please try again, or order on WhatsApp.", values: raw };
   }
 
   revalidatePath("/", "layout");
   // Emails and alerts go out after the customer has been sent to their order page
-  const h = await headers();
-  const base = process.env.APP_URL?.replace(/\/$/, "") || `${h.get("x-forwarded-proto") ?? "http"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
+  const base = await siteBase();
   const placedId = orderId;
   after(() => notifyNewOrder(placedId, base));
   redirect(`/order/${orderId}?new=1`);

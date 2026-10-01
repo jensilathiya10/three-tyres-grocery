@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Icon } from "@/components/Icon";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import { STATUS_LABEL, STATUS_TABS } from "@/components/admin/StatusPill";
 import { requireAdmin } from "@/lib/auth";
@@ -36,6 +37,7 @@ export default async function OrdersPage({ searchParams }: PageProps<"/admin/ord
     <>
       <div className="admin-head">
         <h1>Orders</h1>
+        <Link className="btn btn-primary btn-sm" href="/admin/orders/new" style={{ marginRight: "auto" }}><Icon name="plus" />New order</Link>
         <form className="inline-form">
           {status && <input type="hidden" name="status" value={status} />}
           <input className="input" style={{ width: 240 }} name="q" defaultValue={q} placeholder="Name, phone or TTG-1001" aria-label="Search orders" />

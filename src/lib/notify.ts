@@ -130,18 +130,26 @@ function ownerAlert(o: LoadedOrder, base: string) {
   return { subject: `New order ${no} · ${money(o.totalCents)} · ${o.customerName}`, text };
 }
 
-/** Sends the customer's confirmation and the shop's new-order alert. Never throws. */
-export async function notifyNewOrder(orderId: string, base: string) {
+/**
+ * Sends the customer's confirmation (when they gave an email) and, unless staff entered the order themselves,
+ * the shop's new-order alert. Never throws.
+ */
+export async function notifyNewOrder(orderId: string, base: string, opts: { emailCustomer?: boolean; alertShop?: boolean } = {}) {
+  const { emailCustomer = true, alertShop = true } = opts;
   const o = await loadOrder(orderId).catch(() => null);
   if (!o) return;
   const jobs: Promise<unknown>[] = [];
-  const c = customerEmail(o, base);
-  jobs.push(sendMail(o.email, c.subject, c.text, c.html));
-  const a = ownerAlert(o, base);
-  if (process.env.SHOP_NOTIFY_EMAIL) {
-    jobs.push(sendMail(process.env.SHOP_NOTIFY_EMAIL, a.subject, a.text, `<pre style="font:15px/1.5 Segoe UI,Arial,sans-serif">${esc(a.text)}</pre>`));
+  if (emailCustomer && o.email) {
+    const c = customerEmail(o, base);
+    jobs.push(sendMail(o.email, c.subject, c.text, c.html));
   }
-  jobs.push(sendTelegram(a.text));
+  if (alertShop) {
+    const a = ownerAlert(o, base);
+    if (process.env.SHOP_NOTIFY_EMAIL) {
+      jobs.push(sendMail(process.env.SHOP_NOTIFY_EMAIL, a.subject, a.text, `<pre style="font:15px/1.5 Segoe UI,Arial,sans-serif">${esc(a.text)}</pre>`));
+    }
+    jobs.push(sendTelegram(a.text));
+  }
   for (const r of await Promise.allSettled(jobs)) {
     if (r.status === "rejected") console.error(`Notification for order ${orderNo(o.number)} failed:`, r.reason);
   }
