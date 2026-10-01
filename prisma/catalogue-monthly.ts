@@ -14,7 +14,6 @@ export const NEW_CATEGORIES: NewCategory[] = [
   { slug: "cleaning", name: "Cleaning", short: "Cleaning", color: "#2A9D8F", blurb: "Detergent, dishwash, cleaners and cleaning tools." },
   { slug: "personal", name: "Personal Care", short: "Care", color: "#8E5BC4", blurb: "Soap, shampoo, toothpaste and other toiletries." },
   { slug: "household", name: "Household & Disposables", short: "Household", color: "#5F7A8A", blurb: "Paper plates, foil, bags, batteries and more." },
-  { slug: "fresh", name: "Fresh Vegetables", short: "Fresh", color: "#3F8F3A", blurb: "Onions, tomatoes, herbs and other fresh vegetables." },
 ];
 
 type Row = [name: string, label: string, size: string, cat: string, estimate: number, shape: "sack" | "box" | "pouch" | "jar"];
@@ -232,21 +231,13 @@ export const MONTHLY_ROWS: Row[] = [
   ["Batteries (AA)", "AA Batteries", "4 pcs", "household", 3.49, "box"],
   ["LED Light Bulb", "LED Bulb", "1 pcs", "household", 2.99, "box"],
   ["Car Cleaner", "Car Cleaner", "500 ml", "household", 4.99, "jar"],
-  // Fresh vegetables
-  ["Onions", "Onions", "2 kg", "fresh", 2.49, "sack"],
-  ["Tomatoes", "Tomatoes", "1 kg", "fresh", 2.99, "box"],
-  ["Small Onions (Shallots)", "Shallots", "500 g", "fresh", 2.49, "sack"],
-  ["Garlic", "Garlic", "250 g", "fresh", 1.99, "sack"],
-  ["Ginger", "Ginger", "250 g", "fresh", 1.99, "pouch"],
-  ["Green Chillies", "Green Chilli", "100 g", "fresh", 0.99, "pouch"],
-  ["Potatoes", "Potatoes", "1 kg", "fresh", 1.49, "sack"],
-  ["Lemons", "Lemons", "5 pcs", "fresh", 1.99, "sack"],
-  ["Coriander Leaves", "Coriander", "1 bunch", "fresh", 0.99, "pouch"],
-  ["Mint Leaves", "Mint", "1 bunch", "fresh", 0.99, "pouch"],
-  ["Curry Leaves", "Curry Leaves", "1 bunch", "fresh", 1.29, "pouch"],
-  ["Coconut", "Coconut", "1 pcs", "fresh", 1.99, "box"],
-  ["Carrots", "Carrots", "500 g", "fresh", 0.99, "sack"],
 ];
+
+/**
+ * Taken out again at the owner's request (fresh vegetables, 2026-10-01). add-catalogue.ts deletes these
+ * categories and their products, or only hides products that already appear in orders.
+ */
+export const REMOVED_CATEGORIES = ["fresh"];
 
 /** The owner's markup on top of each estimate. */
 export const MARKUP_EUR = 1;

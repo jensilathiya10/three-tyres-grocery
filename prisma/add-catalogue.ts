@@ -3,10 +3,11 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { parseSize } from "../src/lib/unit-price";
 import { pgConfig } from "../src/lib/database-url";
-import { MARKUP_EUR, MONTHLY_ROWS, NEW_CATEGORIES, START_STOCK } from "./catalogue-monthly";
+import { MARKUP_EUR, MONTHLY_ROWS, NEW_CATEGORIES, REMOVED_CATEGORIES, START_STOCK } from "./catalogue-monthly";
 
-// Adds the monthly-list categories and products that are missing. It never changes or removes
-// anything that exists, so admin edits survive; it runs on every Vercel deploy (see vercel.json).
+// Adds the monthly-list categories and products that are missing, and removes the categories listed in
+// REMOVED_CATEGORIES. It never changes other existing products, so admin edits survive; it runs on every
+// Vercel deploy (see vercel.json).
 
 const db = new PrismaClient({ adapter: new PrismaPg(pgConfig("direct")) });
 
@@ -46,6 +47,17 @@ async function main() {
 
   const { count } = await db.product.createMany({ data, skipDuplicates: true });
   console.log(`Catalogue: ${newCats} new categories, ${count} new products (${data.length - count} already there).`);
+
+  // Remove categories the owner dropped. Products that appear in orders are only hidden, so order history stays intact.
+  for (const slug of REMOVED_CATEGORIES) {
+    const cat = await db.category.findUnique({ where: { slug } });
+    if (!cat) continue;
+    const ordered = await db.product.findMany({ where: { categoryId: cat.id, orderItems: { some: {} } }, select: { id: true } });
+    const hidden = await db.product.updateMany({ where: { id: { in: ordered.map((p) => p.id) }, active: true }, data: { active: false } });
+    const deleted = await db.product.deleteMany({ where: { categoryId: cat.id, orderItems: { none: {} } } });
+    if (!ordered.length) await db.category.delete({ where: { id: cat.id } });
+    console.log(`Removed "${cat.name}": ${deleted.count} products deleted, ${hidden.count} hidden${ordered.length ? " (category kept for past orders)" : ", category deleted"}.`);
+  }
 }
 
 main().finally(() => db.$disconnect());
