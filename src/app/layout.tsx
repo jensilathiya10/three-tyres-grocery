@@ -8,6 +8,8 @@ const body = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: { default: "Three Tyres Grocery · Indian groceries. Delivered to Berlin.", template: "%s · Three Tyres Grocery" },
   description: "Indian & South Asian groceries delivered to your door in Berlin. Rice, atta, dal, spices, snacks and more. 1-day delivery, order online or on WhatsApp.",
+  // Google Search Console ownership check; set GOOGLE_SITE_VERIFICATION to the code Google gives you
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
 };
 
 export const viewport: Viewport = {
