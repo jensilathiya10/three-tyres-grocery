@@ -9,6 +9,7 @@ import { formatDay, money, orderNo } from "./format";
  *   MAIL_FROM           e.g. "Three Tyres Grocery <orders@threetyres.de>"
  *   SHOP_NOTIFY_EMAIL   where new-order alerts go (your inbox)
  *   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID   push new-order alerts to your phone
+ *   CALLMEBOT_PHONE + CALLMEBOT_APIKEY      new-order alerts on your WhatsApp (callmebot.com, free, unofficial)
  * A failed notification is logged and never blocks or undoes an order.
  */
 
@@ -41,6 +42,18 @@ async function sendTelegram(text: string) {
     signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`Telegram ${res.status}: ${await res.text()}`);
+}
+
+/** WhatsApp alert to the shop owner through CallMeBot. Only ever sends to the owner's own number. */
+async function sendWhatsApp(text: string) {
+  const phone = process.env.CALLMEBOT_PHONE?.replace(/[^\d]/g, "");
+  const key = process.env.CALLMEBOT_APIKEY;
+  if (!phone || !key) return;
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&apikey=${encodeURIComponent(key)}&text=${encodeURIComponent(text)}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  const body = await res.text();
+  // CallMeBot answers 200 with an HTML page even for some errors, so check the wording too
+  if (!res.ok || /error|not (been )?activated|invalid/i.test(body)) throw new Error(`CallMeBot ${res.status}: ${body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}`);
 }
 
 const PAYMENT_TEXT: Record<string, string> = {
@@ -122,6 +135,7 @@ function ownerAlert(o: LoadedOrder, base: string) {
     `New order ${no} · ${money(o.totalCents)}`,
     `${o.customerName} · ${o.phone}`,
     `${o.street}${o.apartment ? ", " + o.apartment : ""}, ${o.postcode}`,
+    `Map: https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${o.street}, ${o.postcode} ${o.city}`)}`,
     `Delivery ${formatDay(o.deliveryDate)} · ${o.paymentMethod === "WHATSAPP" ? "confirm on WhatsApp" : "pay on delivery"}`,
     ...orderLines(o).map((l) => `• ${l.label}`),
     o.note ? `Note: ${o.note}` : "",
@@ -149,6 +163,7 @@ export async function notifyNewOrder(orderId: string, base: string, opts: { emai
       jobs.push(sendMail(process.env.SHOP_NOTIFY_EMAIL, a.subject, a.text, `<pre style="font:15px/1.5 Segoe UI,Arial,sans-serif">${esc(a.text)}</pre>`));
     }
     jobs.push(sendTelegram(a.text));
+    jobs.push(sendWhatsApp(a.text));
   }
   for (const r of await Promise.allSettled(jobs)) {
     if (r.status === "rejected") console.error(`Notification for order ${orderNo(o.number)} failed:`, r.reason);
