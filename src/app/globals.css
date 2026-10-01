@@ -494,3 +494,13 @@ a.pname:hover { color: var(--green); }
 .legal-text a { color: var(--green); text-decoration: underline; }
 .legal-text mark.missing { background: var(--danger-soft); color: var(--danger); font-weight: 700; padding: 0 4px; border-radius: 4px; }
 .legal-text blockquote { border-left: 3px solid var(--line); margin: 0 0 12px; padding: 4px 0 4px 16px; color: var(--muted); }
+
+/* ---------- Not found ---------- */
+.not-found { max-width: 640px; padding-block: 48px 72px; text-align: center; display: grid; gap: 16px; justify-items: center; }
+.not-found .page-h { margin: 0; }
+.nf-search { width: 100%; max-width: 460px; flex: none; }
+.nf-cats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.nf-cats a { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+.nf-cats a:hover { border-color: var(--green); color: var(--green); }
+.nf-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
+.nf-help { font-size: 14px; }
