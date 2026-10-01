@@ -351,6 +351,9 @@ a.pname:hover { color: var(--green); }
 .hint { font-size: 13px; color: var(--muted); }
 .hint.ok { color: var(--green); font-weight: 600; }
 .hint.bad { color: var(--danger); font-weight: 600; }
+.remember { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 4px 0 18px; }
+.remember .hint { flex-basis: 100%; margin: 0 0 0 26px; }
+.remember .check { font-size: 15px; cursor: pointer; }
 @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } .field.span2 { grid-column: auto; } }
 .slot { border: 1.5px solid var(--green); background: var(--green-soft); border-radius: var(--r); padding: 14px 16px; display: flex; gap: 12px; align-items: center; margin-top: 14px; }
 .slot svg { color: var(--green); width: 26px; height: 26px; }

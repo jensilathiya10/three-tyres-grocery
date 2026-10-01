@@ -29,8 +29,11 @@ Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sic
 *Nur falls aktiviert:* Zum Schutz vor Bots nutzen wir Cloudflare Turnstile (Cloudflare, Inc., USA). Dabei werden technische Daten Ihres Browsers an Cloudflare übermittelt. **[Mit Anbieter-Datenschutzinformationen ergänzen oder Absatz entfernen, wenn nicht genutzt.]**
 
 ### Speicherung in Ihrem Browser
-Ihr Warenkorb und – falls Sie bestellt haben – Ihre Kontakt- und Lieferdaten werden im lokalen Speicher Ihres Browsers (localStorage) abgelegt, damit Sie sie nicht erneut eingeben müssen. Diese Daten verlassen Ihr Gerät nicht, bis Sie eine Bestellung absenden. Sie können sie jederzeit über die Browsereinstellungen löschen.
-Rechtsgrundlage: § 25 Abs. 2 Nr. 2 TDDDG (unbedingt erforderlich für den von Ihnen gewünschten Dienst) bzw. Art. 6 Abs. 1 lit. b DSGVO.
+Ihr Warenkorb wird im lokalen Speicher Ihres Browsers (localStorage) abgelegt, damit er beim nächsten Besuch noch da ist.
+Rechtsgrundlage: § 25 Abs. 2 Nr. 2 TDDDG (unbedingt erforderlich für den von Ihnen gewünschten Dienst).
+
+Nur wenn Sie an der Kasse „Remember my details on this device“ (Daten merken) ankreuzen, speichern wir dort auch Name, Telefonnummer, E-Mail-Adresse und Lieferadresse, damit Sie sie beim nächsten Mal nicht erneut eingeben müssen. Diese Daten verlassen Ihr Gerät nicht, bis Sie eine Bestellung absenden. Sie können sie jederzeit an der Kasse mit „Forget them“ (Vergessen) oder über die Browsereinstellungen löschen; wenn Sie das Häkchen bei einer Bestellung entfernen, werden sie ebenfalls gelöscht.
+Rechtsgrundlage: Ihre Einwilligung, § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO. Sie können sie jederzeit widerrufen.
 
 ### Bestellung über WhatsApp
 Wenn Sie auf einen WhatsApp-Button klicken, öffnet sich WhatsApp (WhatsApp Ireland Ltd.) mit einer vorbereiteten Nachricht. Erst wenn Sie diese absenden, erhalten wir Ihre Nachricht und Telefonnummer. Für die Verarbeitung durch WhatsApp gilt deren Datenschutzerklärung.
@@ -61,7 +64,7 @@ Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, z
 - **Who we are:** {{name}}, {{address}}, {{email}}.
 - **Orders:** we use your name, phone, email, address, notes and the items you order to deliver your order and contact you about it. Order records are kept as long as tax law requires (usually up to 10 years).
 - **Abuse protection:** we briefly count orders and sign-in attempts per IP address and phone number (at most 24 hours).
-- **Your browser:** your cart and, after an order, your contact and address details are saved only on your device to save you typing. Clear them in your browser settings at any time.
+- **Your browser:** your cart is saved on your device. Your contact and address details are saved there only if you tick "Remember my details" at checkout; untick it or press "Forget them" to delete them.
 - **WhatsApp:** buttons open WhatsApp with a ready-made message; we only receive it if you send it.
 - **Order alerts:** when you order, we send ourselves an alert with your name, phone, address and items by email and WhatsApp (delivered via CallMeBot and WhatsApp), so we can pack and deliver it quickly.
 - **No tracking:** no analytics or advertising cookies. Fonts are served from our own server.

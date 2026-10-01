@@ -32,7 +32,10 @@ function Field({ id, label, state, type = "text", autoComplete, inputMode, place
   );
 }
 
-const DRAFT_KEY = "threetyres-checkout-draft";
+// Saved only when the customer ticks "remember my details" (consent, § 25 TDDDG).
+// The old key held details saved without asking; it is deleted on sight.
+const DRAFT_KEY = "threetyres-checkout-details-v2";
+const OLD_DRAFT_KEY = "threetyres-checkout-draft";
 
 export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; botCheckSiteKey?: string }) {
   const { lines, ready, subtotalCents: sub } = useCart();
@@ -40,9 +43,10 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
   const [postcode, setPostcode] = useState(state.values?.postcode ?? "");
   const [draft, setDraft] = useState<CheckoutState["values"]>();
 
-  // Prefill from the last checkout on this device so returning customers don't retype their address
+  // Prefill from the last checkout on this device, if the customer asked us to remember their details
   useEffect(() => {
     try {
+      localStorage.removeItem(OLD_DRAFT_KEY);
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "null");
       if (saved) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- reading localStorage after mount
@@ -74,8 +78,17 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
 
   function saveDraft(form: HTMLFormElement) {
     const fd = new FormData(form);
-    const keep = ["name", "phone", "email", "street", "apartment", "postcode"];
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.fromEntries(keep.map((k) => [k, String(fd.get(k) ?? "")])))); } catch {}
+    try {
+      if (fd.get("remember") !== "on") return localStorage.removeItem(DRAFT_KEY);
+      const keep = ["name", "phone", "email", "street", "apartment", "postcode"];
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.fromEntries(keep.map((k) => [k, String(fd.get(k) ?? "")]))));
+    } catch {}
+  }
+
+  function forgetDetails() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    setDraft(undefined);
+    setPostcode("");
   }
 
   return (
@@ -146,6 +159,17 @@ export function CheckoutForm({ areas, botCheckSiteKey }: { areas: AreaRule[]; bo
           </div>
           {state.fieldErrors?.payment && <p className="err" style={{ marginTop: 8 }}>{state.fieldErrors.payment}</p>}
         </fieldset>
+
+        <div className="remember">
+          <label className="check">
+            <input type="checkbox" name="remember" defaultChecked={!!draft} />
+            Remember my details on this device for next time
+          </label>
+          {draft && (
+            <button type="button" className="link" onClick={forgetDetails}>Forget them</button>
+          )}
+          <p className="hint">Your name, phone, email and address are then saved only in this browser. Don&apos;t tick this on a shared computer.</p>
+        </div>
 
         {botCheckSiteKey && <Turnstile siteKey={botCheckSiteKey} />}
         <button className="btn btn-primary btn-block" type="submit" disabled={pending} style={{ paddingBlock: 16, fontSize: 16 }}>
