@@ -8,6 +8,8 @@ import { formatDay, money, orderNo } from "./format";
  *   SMTP_URL            e.g. smtps://user:password@smtp.example.com:465 (or smtp://localhost:1025 for Mailpit)
  *   MAIL_FROM           e.g. "Three Tyres Grocery <orders@threetyres.de>"
  *   SHOP_NOTIFY_EMAIL   where new-order alerts go (your inbox)
+ *   MAIL_REPLY_TO       where customers' replies go (defaults to NEXT_PUBLIC_CONTACT_EMAIL, then SHOP_NOTIFY_EMAIL);
+ *                       needed when the sender address is rewritten, e.g. Brevo with a Gmail sender
  *   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID   push new-order alerts to your phone
  *   CALLMEBOT_PHONE + CALLMEBOT_APIKEY      new-order alerts on your WhatsApp (callmebot.com, free, unofficial)
  * A failed notification is logged and never blocks or undoes an order.
@@ -22,13 +24,15 @@ function mailer() {
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-async function sendMail(to: string, subject: string, text: string, html: string) {
+const shopReplyTo = () => process.env.MAIL_REPLY_TO || process.env.NEXT_PUBLIC_CONTACT_EMAIL || process.env.SHOP_NOTIFY_EMAIL || undefined;
+
+async function sendMail(to: string, subject: string, text: string, html: string, replyTo?: string) {
   const m = mailer();
   if (!m) {
     console.info(`[mail not configured] would send "${subject}" to ${to}`);
     return;
   }
-  await m.sendMail({ from: process.env.MAIL_FROM || "Three Tyres Grocery <no-reply@localhost>", to, subject, text, html });
+  await m.sendMail({ from: process.env.MAIL_FROM || "Three Tyres Grocery <no-reply@localhost>", to, subject, text, html, replyTo: replyTo || undefined });
 }
 
 async function sendTelegram(text: string) {
@@ -155,12 +159,12 @@ export async function notifyNewOrder(orderId: string, base: string, opts: { emai
   const jobs: Promise<unknown>[] = [];
   if (emailCustomer && o.email) {
     const c = customerEmail(o, base);
-    jobs.push(sendMail(o.email, c.subject, c.text, c.html));
+    jobs.push(sendMail(o.email, c.subject, c.text, c.html, shopReplyTo()));
   }
   if (alertShop) {
     const a = ownerAlert(o, base);
     if (process.env.SHOP_NOTIFY_EMAIL) {
-      jobs.push(sendMail(process.env.SHOP_NOTIFY_EMAIL, a.subject, a.text, `<pre style="font:15px/1.5 Segoe UI,Arial,sans-serif">${esc(a.text)}</pre>`));
+      jobs.push(sendMail(process.env.SHOP_NOTIFY_EMAIL, a.subject, a.text, `<pre style="font:15px/1.5 Segoe UI,Arial,sans-serif">${esc(a.text)}</pre>`, o.email));
     }
     jobs.push(sendTelegram(a.text));
     jobs.push(sendWhatsApp(a.text));
